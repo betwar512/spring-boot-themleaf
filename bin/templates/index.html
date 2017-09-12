@@ -6,7 +6,7 @@
     <link th:href="@{/styles/bootstrap/css/bootstrap.css}" rel="stylesheet"/>
      <link th:href="@{/styles/css/datetimepicker.css}" rel="stylesheet"/>
  
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.8.7/jquery.timepicker.css"/> 
+<!--       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.8.7/jquery.timepicker.css"/>  -->
        </head>
      <body>
 
@@ -29,14 +29,63 @@
         </div>
       </div>
     </div>
-
-    <h1>Tests</h1>
+    
+     <div class="container-fluid" style="padding:80px;">
+     <h2>EFPOS LOGS</h2>
+     <div class="toggle-hide" id="search-form">
+     <div th:replace="fragments/searchform :: searchform">
+     	  <div class="container">
+               <div class="panel panel-danger">
+                       <div class="panel-heading">
+                         Search by Date and Time 
+                        </div>
+                        <!-- /.panel-heading -->
+             <div class="panel-body">
+               <form action="#" th:action="@{/loaddockets}" th:object="${DatesDto}" method="post">
+									    <div class='col-md-5'>
+									        <div class="form-group">
+									            <div class='input-group date' id='datetimepickermin'>
+									                <input type='text' class="form-control" name="mindatetime"/>
+									                <span class="input-group-addon">
+									                    <span class="glyphicon glyphicon-calendar"></span>
+									                </span>
+									            </div>
+									        </div>
+									    </div>
+									    <div class='col-md-5'>
+									        <div class="form-group">
+									            <div class='input-group date' id='datetimepickermax'>
+									                <input type='text' class="form-control" name="maxdatetime"/>
+									                <span class="input-group-addon">
+									                    <span class="glyphicon glyphicon-calendar"></span>
+									                </span>
+									            </div>
+									        </div>
+									    </div>
+									  <br/>
+		   	             	  <div class="col col-md-8">
+			 					<button type="submit" class="btn btn-primary" name="search" value="search">search</button>
+			 					<button type="submit" class="btn btn-danger" name="settl" value="settlments">settl</button>
+			 					
+							 </div>
+						</form>
+			     </div><!-- panel body -->
+		      </div><!-- panel root  -->
+		  </div>
+       </div>
+     </div> 
+     		<div class="toggle-hidden" id="table-spot">
+     	</div>
+    </div>
+	
 
 
 	<script type="text/javascript" th:src="@{/styles/js/jquery-2.1.4.min.js}"></script>
 	<script type="text/javascript" th:src="@{/styles/bootstrap/js/bootstrap.js}"></script>
 	<script type="text/javascript" th:src="@{/styles/js/moment.js}"></script>
 	<script type="text/javascript" th:src="@{/styles/js/bootstrap-datetimepicker.js}"></script>
+	<script type="text/javascript" th:src="@{/styles/js/search-form.js}"></script>
+	
     
      </body>
 </html>

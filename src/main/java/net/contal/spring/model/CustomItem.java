@@ -11,8 +11,11 @@ import java.util.Date;
 import com.google.gson.JsonObject;
 
 
-
-
+/**
+ * 
+ * @author A.H.Safaie
+ *
+ */
 public class CustomItem implements Comparator<CustomItem>{
 
 	private String merchantId;
@@ -35,21 +38,6 @@ public class CustomItem implements Comparator<CustomItem>{
 		this.date = date;
 	}
 
-	public JsonObject toJson(){
-		DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-		
-	    JsonObject object = new JsonObject();
-	    object.addProperty("merchantId", this.merchantId);
-	    object.addProperty("terminalId", this.terminalId);
-        object.addProperty("date",this.dateTime!=null? df.format(this.dateTime):"");
-	    object.addProperty("cardNumber", this.cardNumber);
-	    object.addProperty("status", this.status);
-	    object.addProperty("purchaseAmount", this.purchaseAmount);
-	    object.addProperty("totalAmount", this.totalAmount);
-	    object.addProperty("cardType", this.cardType);    
-	return object;
-}
-	
 	//sort by date 
 	
 	@Override
@@ -202,69 +190,62 @@ public class CustomItem implements Comparator<CustomItem>{
 
 	public String createStamenet(){
 		
-		if(this.purchaseAmount.startsWith("$"))
+		if(this.purchaseAmount != null &&this.purchaseAmount.startsWith("$")) {
 			this.purchaseAmount =purchaseAmount.substring(1);
+		}
 		
 		
-     String sql ="INSERT INTO CUSTOMITEM VALUES (null,'"+this.terminalId+"','"+this.cardNumber+"','"+this.merchantId+"','"+this.status+"',"
-     		+this.purchaseAmount.toString()+","+this.totalAmount.toString()+",'"+this.cardType+"',"+this.dateTime.getTime()+");";
 		
-		return sql;
+		
+     return "INSERT INTO CUSTOMITEM VALUES (null,'"+this.terminalId+"','"+this.cardNumber+"','"+this.merchantId+"','"+this.status+"',"
+     		+this.purchaseAmount+","+this.totalAmount.toString()+",'"+this.cardType+"',"+this.dateTime.getTime()+");";
+		
+	
 		
 	}
 	
 	
 	public static String getCount(){
-		
-		String sql = "SELECT COUNT(*) as total FROM CUSTOMITEM ";
-		return sql;
+		return "SELECT COUNT(*) as total FROM CUSTOMITEM ";
 	}
 	
 	/**
 	 * Get Last entry 
 	 * @return
 	 */
-	public static String gettheLastOne(){
-		
-		String sql = "SELECT * FROM CUSTOMITEM ORDER BY dateTime DESC LIMIT 1";
-		return sql;
+	public static String gettheLastOne(){		
+	return "SELECT * FROM CUSTOMITEM ORDER BY dateTime DESC LIMIT 1";
 	}
 	
-	
-	public static String getAllTheShitYouWant(){
-		
-		
-		return "";
-	}
-	
-	
-	
+
 	/**
 	 * @note get all the between in order to calculated satelments 
 	 * @param start
 	 * @param end
 	 * @return
 	 */
-	public static String getBetweenOrderByDate(Date start , Date end){
-		
-		String sql = "SELECT * FROM CUSTOMITEM it WHERE it.dateTime > "+start.getTime() + "AND it.dateTime < "+ end.getTime()
+	public static String getBetweenOrderByDate(Date start , Date end){	
+		return "SELECT * FROM CUSTOMITEM it WHERE it.dateTime > "+ start.getTime() + " AND it.dateTime < "+ end.getTime()
 		+"ORDER BY it.dateTime DESC";
-		return sql;
-		
-		
+
 	}
 	
+	
+	public static String getBetweenOrderByDate(long start , long end){	
+		return "SELECT * FROM CUSTOMITEM it WHERE it.dateTime > "+ start + " AND it.dateTime < "+ end
+		+" ORDER BY it.dateTime DESC";
+
+	}
+	
+	private static final String GET_ALL = "SELECT * FROM CUSTOMITEM ORDER BY terminalId";
 	/**
 	 * @note Select All 
 	 * @return
 	 */
-	public static String selectAll(){
-		
-		return "SELECT * FROM CUSTOMITEM ORDER BY terminalId";
-		
-		
+	public static String selectAll(){	
+		return GET_ALL;
 	}
-	
+
 	
 	/**
 	 * @note : group by terminal 
@@ -273,12 +254,10 @@ public class CustomItem implements Comparator<CustomItem>{
 	 * @return
 	 */
 public static String groupTotalByTerminal(Date start,Date end){
-		
-	String sql = "select sum(it.totalAMount) as total , terminalId from CUSTOMITEM it where it.dateTime > "+ start.getTime() +
+	return "select sum(it.totalAMount) as total , terminalId from CUSTOMITEM it where it.dateTime > "+ start.getTime() +
 				 " AND it.dateTime < " + end.getTime()+
 				 " AND it.status LIKE '%APPROVED%' "+
 				 " GROUP BY terminalId";
-		return sql;
 	}
 	
 /**
@@ -289,11 +268,10 @@ public static String groupTotalByTerminal(Date start,Date end){
  */
 public static String groupTotalByCardType(Date start,Date end){
 	
-	String sql = "select sum(it.totalAMount) as total , cardType from CUSTOMITEM it where it.dateTime > "+ start.getTime() +
+	return  "select sum(it.totalAMount) as total , cardType from CUSTOMITEM it where it.dateTime > "+ start.getTime() +
 				 " AND it.dateTime < " + end.getTime()+
 				 " AND it.status LIKE '%APPROVED%' "+
 				 " GROUP BY cardType";
-		return sql;
 	}
 
 
@@ -327,14 +305,29 @@ public static String groupTotalByCardType(Date start,Date end){
 	 * @param Date end
 	 * @return String sql 
 	 */
-	public static String selectBetweenDates(Date start , Date end){
-		
-		String sql = "SELECT * FROM CUSTOMITEM it WHERE it.dateTime > "+start.getTime() + " AND it.dateTime < "+ end.getTime() +
+	public static String selectBetweenDates(Date start , Date end){		
+		return "SELECT * FROM CUSTOMITEM it WHERE it.dateTime > "+start.getTime() + " AND it.dateTime < "+ end.getTime() +
 				" ORDER BY dateTime DESC" ;
-		
-		return sql;
-		
+
 	}
+	
+	
+	
+	
+	
+	public JsonObject toJson(){
+		DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    JsonObject object = new JsonObject();
+	    object.addProperty("merchantId", this.merchantId);
+	    object.addProperty("terminalId", this.terminalId);
+        object.addProperty("date",this.dateTime!=null? df.format(this.dateTime):"");
+	    object.addProperty("cardNumber", this.cardNumber);
+	    object.addProperty("status", this.status);
+	    object.addProperty("purchaseAmount", this.purchaseAmount);
+	    object.addProperty("totalAmount", this.totalAmount);
+	    object.addProperty("cardType", this.cardType);    
+	return object;
+}
 	
 	
 	

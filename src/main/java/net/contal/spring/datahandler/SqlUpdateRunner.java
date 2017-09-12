@@ -3,11 +3,11 @@ package net.contal.spring.datahandler;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Calendar;
 import java.util.Date;
-
 import net.contal.spring.model.CustomItem;
-import net.contal.spring.util.ConfigUtils;
+
 
 
 /**
@@ -16,29 +16,43 @@ import net.contal.spring.util.ConfigUtils;
  *
  */
 public class SqlUpdateRunner  implements Runnable {
-	
+
 	SqliteDbHandler db;
-	public boolean updated=false;
-	public SqlUpdateRunner(){
+
+	
+	public SqlUpdateRunner(){	
+		 ResultSet        set = null;
+		 Statement  statement = null;
+		 Connection        cn = null;
 		try {
-			this.db= new SqliteDbHandler();
-			//String checker = createTable();
-			//this.db.stmt.executeQuery(checker);
-			Connection cn =SqliteDbHandler.openConnection();
+			this.db = new SqliteDbHandler();
+			  cn = this.db.conn;
 			String     sql =  CustomItem.getCount();
-		    ResultSet  set =  cn.createStatement().executeQuery(sql);   
+		         statement = cn.createStatement();
+		               set = statement.executeQuery(sql); 
+		    set.next();
 			int  total = 0;
-			if(!set.isClosed())
-				total=	set.getInt("total");
 			
-			cn.close();		
+			if(!set.isClosed()) {
+				total=	set.getInt("total");
+			   }
+			
 			if(total == 0){
 				   update();
-				   updated=true;}
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+				//   updated=true;
+				   }
+		      } catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				if(set != null) {
+				     statement.close();
+				           set.close();	
+				           cn.close();
+				 }
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -52,12 +66,12 @@ public class SqlUpdateRunner  implements Runnable {
 	/**
 	 * @note : update db 
 	 */
-		public  void update(){
-		String	serverType = ConfigUtils.getServer();
+	public  void update(){
+		String	serverType = "NAB";
 			try {
 				db.updatedb(serverType);
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+	
 				e.printStackTrace();
 			}	
 		}
@@ -75,4 +89,7 @@ public class SqlUpdateRunner  implements Runnable {
 		    int millisToNextHour = 1000 - millis;
 		    return minutesToNextHour*60*1000 + secondsToNextHour*1000 + millisToNextHour;
 		}
+   
+   
+   
 }

@@ -3,35 +3,37 @@ package net.contal.spring.datahandler;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import net.contal.spring.model.CustomItem;
 import net.contal.spring.model.Settlement;
 
-public class GroupCustomHandler {
+/**
+ * 
+ * @author A.H.Safaie 
+ *
+ */
+public class DataMapper {
 
-
-	
 	/*
 	 * Create Map out of passed ArrayList 
 	 * Key = CardType 
 	 * 
 	 * */
-	public static HashMap<String,ArrayList<CustomItem>> createMap(ArrayList<CustomItem> items){
+	public static Map<String,List<CustomItem>> createMap(List<CustomItem> items){
 		
-		HashMap<String,ArrayList<CustomItem>> map=new HashMap<>();
-		
-		
+		Map<String,List<CustomItem>> map=new HashMap<>();
+
 		for(CustomItem item:items){
 		
-		if(!map.containsKey(item.getCardType())){	
-			ArrayList<CustomItem> c=new ArrayList<>();
+	    	if(!map.containsKey(item.getCardType())){	
+	    		List<CustomItem> c = new ArrayList<>();
 			c.add(item);
-		map.put(item.getCardType(),c);
-		}else{
-			
-		ArrayList<CustomItem> c=map.get(item.getCardType());
-		c.add(item);
-			
+		    map.put(item.getCardType(),c);
+		   }else{	
+			List<CustomItem> c=map.get(item.getCardType());
+		    c.add(item);		
 				}//else
 			}
 		return map;
@@ -42,20 +44,18 @@ public class GroupCustomHandler {
 	 * Map take place by using card type as a Key 
 	 * 
 	 * */
-	public static HashMap<String,ArrayList<CustomItem>> createTerminalGroup(ArrayList<CustomItem> items){
-		
-				HashMap<String,ArrayList<CustomItem>> map=new HashMap<>();
-		
-		
+	public static Map<String,List<CustomItem>> createTerminalGroup(List<CustomItem> items){		
+		Map<String,List<CustomItem>> map=new HashMap<>();
+
 		for(CustomItem item:items){
 		
 			if(!map.containsKey(item.getTerminalId())){	
-				ArrayList<CustomItem> c=new ArrayList<>();
+				List<CustomItem> c=new ArrayList<>();
 					c.add(item);
 						map.put(item.getTerminalId(),c);
 					}else{
 			
-						ArrayList<CustomItem> c = map.get(item.getTerminalId());
+						List<CustomItem> c = map.get(item.getTerminalId());
 								c.add(item);
 				}//else
 			}	
@@ -68,9 +68,9 @@ public class GroupCustomHandler {
 	 * Time comparison 
 	 * 
 	 */
-	public static ArrayList<Settlement> afterPassedDateSettl(ArrayList<Settlement> list,Date minDate,Date maxDate){
+	public static List<Settlement> afterPassedDateSettl(List<Settlement> list,Date minDate,Date maxDate){
 		
-		ArrayList<Settlement> itemsAll=new ArrayList<Settlement>();
+		List<Settlement> itemsAll=new ArrayList<>();
 			for (Settlement item : list) {
 				if(item.date.after(minDate) && item.date.before(maxDate))
 					itemsAll.add(item);	
@@ -84,9 +84,9 @@ public class GroupCustomHandler {
 	 * Time comparison 
 	 * 
 	 */
-	public static ArrayList<CustomItem> afterPassedDate(ArrayList<CustomItem> list,Date minDate,Date maxDate){
+	public static List<CustomItem> afterPassedDate(List<CustomItem> list,Date minDate,Date maxDate){
 		
-		ArrayList<CustomItem> itemsAll=new ArrayList<>();
+		List<CustomItem> itemsAll=new ArrayList<>();
 			for (CustomItem customItem : list) {
 				if(customItem.getDateTime().after(minDate)&& customItem.getDateTime().before(maxDate))
 					itemsAll.add(customItem);	

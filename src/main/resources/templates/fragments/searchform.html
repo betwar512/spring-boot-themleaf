@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+
+  <div  th:fragment="searchform">
+  <div class="container">
+               <div class="panel panel-primary">
+                       <div class="panel-heading">
+                         Search by Date and Time 
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+     
+               <form action="#" th:action="@{/loadDocket}" th:object="${datesDto}" method="post">
+									    <div class='col-md-5'>
+									        <div class="form-group">
+									            <div class='input-group date' id='datetimepickermin'>
+									                <input type='text' class="form-control" name="mindatetime" th:field="*{dateFrom}"/>
+									                <span class="input-group-addon">
+									                    <span class="glyphicon glyphicon-calendar"></span>
+									                </span>
+									            </div>
+									        </div>
+									    </div>
+									    <div class='col-md-5'>
+									        <div class="form-group">
+									            <div class='input-group date' id='datetimepickermax'>
+									                <input type='text' class="form-control" name="maxdatetime"  th:field="*{dateTo}"/>
+									                <span class="input-group-addon">
+									                    <span class="glyphicon glyphicon-calendar"></span>
+									                </span>
+									            </div>
+									        </div>
+									    </div>
+									  <br/>
+		   	             	  <div class="col col-md-8">
+			 					<button type="submit" class="btn btn-primary" name="search" value="search">search</button>
+			 					<button type="submit" class="btn btn-danger" name="settl" value="settlments">settl</button>
+			 					
+							 </div>
+						</form>
+			     </div><!-- panel body -->
+		      </div><!-- panel root  -->
+		 </div>
+    	</div>		
+    	
+    	
+   
+						
+    		
+</body>
+</html>

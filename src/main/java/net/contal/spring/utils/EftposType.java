@@ -1,4 +1,4 @@
-package net.contal.spring.util;
+package net.contal.spring.utils;
 
 public abstract class EftposType {
 

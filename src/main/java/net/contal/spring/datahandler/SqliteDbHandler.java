@@ -9,8 +9,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+
 import net.contal.spring.model.*;
-import net.contal.spring.util.ConfigUtils;
+import net.contal.spring.utils.ConfigUtils;
 
 
 
@@ -20,18 +24,20 @@ import net.contal.spring.util.ConfigUtils;
  * @note : opening closing and updating db takes place here 
  */
 public class SqliteDbHandler{
-
-  //public	     Connection conn = null;
-//  public 	      Statement stmt = null;
+	 @Autowired
+	 Environment env;
+  public	     Connection conn = null;
+  public 	      Statement stmt = null;
  // final String     nab = EftposType.nab;
   //final String westpac = EftposType.westpac;
-  // protected static final String folderPath ="/Users/Betwar/Desktop/Elixir"; //"C://PC_EFT";
- //  protected final String serv = "NAB";//ServletSelector.getFromEnvironment("conf\\serv-conf.txt");
-  // public static final  String dbURL = "jdbc:sqlite:/Users/Betwar/Desktop/temp/xydb.db";
- //  public static final String jdbClassName = "org.sqlite.JDBC";
+   //protected static final String folderPath ="/Users/Betwar/Desktop/Elixir"; //"C://PC_EFT";
+   protected final String serv = "NAB";//ServletSelector.getFromEnvironment("conf\\serv-conf.txt");
+   public static final  String dbURL = "jdbc:sqlite:/Users/Betwar/Desktop/temp/xydb.db";
+   public static final String jdbClassName = "org.sqlite.JDBC";
    public SqliteDbHandler() throws SQLException{ 
-	  // if(conn==null)
-	 //  conn = openConnection(); 
+	  if(conn==null) {
+	  conn = openConnection(); 
+	  }
    }
 
    
@@ -43,15 +49,21 @@ public class SqliteDbHandler{
 	 * @throws IllegalAccessException
 	 * @throws SQLException
 	 */
-	public static void checkDb() throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException{
-	
-	          Class.forName(ConfigUtils.getJdbClassName()).newInstance();
-	          String  dbURL = ConfigUtils.getDbUrl();
-	          Connection cn =  DriverManager.getConnection(dbURL);
-	            cn.createStatement().executeUpdate(createTable()); //Table items 
-	            cn.createStatement().executeUpdate(Settlement.createTable()); //Table settlements      
-	           // cn.commit();
-	            cn.close();
+	public static void checkDb(){
+		  Connection cn  = null;
+	          try {
+				Class.forName(ConfigUtils.getJdbClassName()).newInstance();
+		           cn =  DriverManager.getConnection(dbURL);
+		            Statement st = cn.createStatement();
+		            		st.executeUpdate(createTable()); //Table items
+		            		st.close();
+		            		  Statement st1 = cn.createStatement();
+		            		  st1.executeUpdate(Settlement.createTable()); //Table settlements      
+		            		  st1.close();
+			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
+				e.printStackTrace();
+			}
+	       
 	}
 	/**
 	 * 
@@ -84,7 +96,7 @@ public static String createTable(){
 	  try {
           Class.forName(ConfigUtils.getJdbClassName());
           
-         Connection conn = DriverManager.getConnection(ConfigUtils.getDbUrl());
+         Connection conn = DriverManager.getConnection(dbURL/*ConfigUtils.getDbUrl()*/);
           if (conn != null) {
               System.out.println("Connected to the database");
               DatabaseMetaData dm = (DatabaseMetaData) conn.getMetaData();
@@ -92,7 +104,7 @@ public static String createTable(){
               System.out.println("Driver version: " + dm.getDriverVersion());
               System.out.println("Product name: " + dm.getDatabaseProductName());
               System.out.println("Product version: " + dm.getDatabaseProductVersion());
-         
+
               return conn;
           }
       } catch (ClassNotFoundException ex) {
@@ -120,9 +132,10 @@ public static String createTable(){
 	 * @throws SQLException
 	 */
 	public void updatedb(String className) throws SQLException{
-		List<CustomItem> items= new ArrayList<CustomItem>();
+	//	className = "NAB";
+		List<CustomItem> items= new ArrayList<>();
 		List<CustomItem> newItems = null;
-		List<Settlement> stlLsit= new ArrayList<Settlement>();
+		List<Settlement> stlLsit= new ArrayList<>();
 		List<Settlement> newSettel= null;
 	    Connection conn = openConnection();
 		String sql = CustomItem.gettheLastOne();
@@ -132,26 +145,25 @@ public static String createTable(){
 		Long  time=null;
 		Long timeSettlements= null;
 		
-	if(set.next())
+	if(set.next()) {
 		  time = set.getLong("dateTime");
-	
+	     }
 	ResultSet  setSettlement = conn.createStatement().executeQuery(lastSettlement);
-	if(setSettlement.next())
+	if(setSettlement.next()) {
 		 timeSettlements= setSettlement.getLong("dateTime");
-
+	         }
 		    //Set Items here by configuration file 
-		    if(className.equals(ConfigUtils.SERVERS.NAB.toString())){
+		if(className.equals(ConfigUtils.SERVERS.NAB.toString())){
 		    	NABLogHelper nh= new NABLogHelper();
 		    	items=nh.items;
 		    	stlLsit= nh.listSettlements;
-		    }else
-		    	if(className.equals(ConfigUtils.SERVERS.WESTPAC.toString())){
+		    }else if(className.equals(ConfigUtils.SERVERS.WESTPAC.toString())){
 		    	WestpacLogHelper wh= new WestpacLogHelper();
 		    	items=wh.items;	
 		    	stlLsit = wh.settlements;
 		    	
 		    	}
-		    
+		 
 		    
 		    
 		    	//Check if database not empty 
@@ -198,10 +210,10 @@ public static String createTable(){
 					   conn.createStatement().executeUpdate(insert);	
 				}
 			
-			}else
+			}else {
 				System.out.println("nothing to update Settlment ");
-		
-		
+			}
+		System.out.println("END ");
 		conn.close();
 		//Close db connection and clean up 
 	//	clodeConnection();
@@ -221,7 +233,7 @@ public static String createTable(){
 	 * @return List CustomItem 
 	 */
 	public List<CustomItem> getItemAfter(List<CustomItem> items,Date date){
-		List<CustomItem> after= new ArrayList<CustomItem>();
+		List<CustomItem> after= new ArrayList<>();
 		for(CustomItem item : items){
 			if(item.getDateTime().after(date))
 				after.add(item);
@@ -240,12 +252,11 @@ public static String createTable(){
 	 * @return List CustomItem 
 	 */
 	public List<Settlement> getSettelmentAfter(List<Settlement> items,Date date){
-		List<Settlement> after= new ArrayList<Settlement>();
-		for(Settlement item : items){
-			
-			if(item.getDate()!=null && item.getDate().after(date))
+		List<Settlement> after= new ArrayList<>();
+		for(Settlement item : items){	
+			if(item.getDate()!=null && item.getDate().after(date)) {
 				after.add(item);
-
+			}
 		}
 		return after;
 	}

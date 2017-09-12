@@ -15,7 +15,7 @@ import java.util.Map;
 
 import net.contal.spring.model.CustomItem;
 import net.contal.spring.model.Settlement;
-import net.contal.spring.util.ConfigUtils;
+import net.contal.spring.utils.ConfigUtils;
 
 
 

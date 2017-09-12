@@ -22,18 +22,17 @@ import java.util.Map.Entry;
 import com.google.gson.JsonArray;
 
 import net.contal.spring.model.*;
-import net.contal.spring.util.ConfigUtils;
+import net.contal.spring.utils.ConfigUtils;
 
 
 public class NABLogHelper {
 
 	//PRE SETTLEMENT  
-	
-	
+
 	//public HashMap<String,ArrayList<CustomItem>> map;
-	public ArrayList<ArrayList<String>>  stringMap;
+	public List<List<String>>  stringMap;
 	
-	public List<CustomItem> items= new ArrayList<CustomItem>();
+	public List<CustomItem> items = new ArrayList<>();
 	public List<Settlement> listSettlements;
 	/**
 	 * @note : reads all the Log files and generates custome List by thtat Data 
@@ -43,11 +42,6 @@ public class NABLogHelper {
 		  stringMap = createReceiptMap();
 		 this.items = createListItems();
 	      Collections.sort(this.items, new CustomItem());
-		  //map=createCustomMap();
-	   //   ArrayList<ArrayList<String>> settlements=  getSettlementForNab();
-		  // listSettlements=getNabSettlements(settlements);
-		      //Make list 
-		//  ArrayList<CustomItem> itemsAll=SumCustomHandler.mapToList(this.map);
 
 	}
 	
@@ -59,11 +53,9 @@ public class NABLogHelper {
 		SimpleDateFormat sdfmt1 = new SimpleDateFormat("dd/MM/yy");
 		Date dDate;
 		try {
-			dDate = sdfmt1.parse( strInput );
-			
-			return dDate;
+			dDate = sdfmt1.parse( strInput );			
+		return dDate;
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -79,9 +71,7 @@ public class NABLogHelper {
 	private static List<File> listFilesForFolder(final File folder) {
 	  List<File> files=new ArrayList<>();
 	  
-		for (File fileEntry : folder.listFiles())  { 	//fpos Root folders 	
-			//fileEntry.add(fileEntry);   
-			
+		for (File fileEntry : folder.listFiles())  { 	//fpos Root folders 		
 			if(fileEntry.isDirectory()){
 			for(File secFolder:fileEntry.listFiles()){
 			if (secFolder.isDirectory()){
@@ -90,12 +80,10 @@ public class NABLogHelper {
 			    	 files.add(file);
 			        }
 			      }
-				}
-			  else
-			     { 
-				  
-					if(secFolder.getName().endsWith("LOG"))
+			 	} else{ 			  
+					 if(secFolder.getName().endsWith("LOG")) {
 						files.add(secFolder);    
+						}
 		        }
 			  }
 			}
@@ -109,17 +97,13 @@ public class NABLogHelper {
 	 * @param folderPath
 	 * @return
 	 */
-	public static ArrayList<ArrayList<String>> getSettlementForNab(){
-		
-		ArrayList<ArrayList<String>> map=new ArrayList<ArrayList<String>>();//add all to map 
-		//int mapIndex=0;
-		
+	public static List<List<String>> getSettlementForNab(){
+		//add all to map 
+		List<List<String>> map=new ArrayList<>();
 		//final String folderPath = "C:\\PC_EFT";
 		final File folder = new File(ConfigUtils.getLogPath());
 		List<File> files= listFilesForFolder(folder);
-	
-		
-		
+
 		for(File file:files){
 		try{
 			boolean bool = false;
@@ -128,7 +112,7 @@ public class NABLogHelper {
 			   BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
 			   String strLine;
 			   /* read the log File line by line */
-			  ArrayList<String> array=new ArrayList<String>();
+			  ArrayList<String> array=new ArrayList<>();
 			   while ((strLine = br.readLine()) != null)   {
 			  //doing the tag catching here 
 				   if(strLine.trim().equals("PRE SETTLEMENT"))
@@ -154,10 +138,6 @@ public class NABLogHelper {
 				    	array.add(strLine.trim());	
 				    	System.out.println(strLine.trim());
 				    }
-
-				    	
-
-				 //  System.out.println(strLine);
 			      }
 			br.close(); 
 	     	} catch (Exception e) {
@@ -198,51 +178,52 @@ private static Date formatStrongToDate(String dateInString){
 	 * @param map
 	 * @return
 	 */
-	public static HashMap<Date,ArrayList<String>>  settlmentMapByDate(){
+	public static Map<Date,List<String>>  settlmentMapByDate(){
 		
-		ArrayList<ArrayList<String>> map = getSettlementForNab();
+		List<List<String>> map = getSettlementForNab();
 		
 		
-		HashMap<Date,ArrayList<String>> dateMap = new HashMap<Date,ArrayList<String>>();
+		Map<Date,List<String>> dateMap = new HashMap<>();
 
-		for(ArrayList<String> item:map){
+		for(List<String> item:map){
 			Date date = new Date();
 			if(item.size()>37){
 			String dateString = item.get(38);
-			if(dateString.length()>0)
-			date=formatStrongToDate(dateString) ;
+			
+			if(dateString.length()>0) {
+			    date = formatStrongToDate(dateString) ;
+			   }
+			
 			if(dateMap.containsKey(date)){
-			dateMap.put(date, item);
-			}
-			else{
+			    dateMap.put(date, item);
+			  }else{
 				dateMap.put(date,item);
 			}
-		   }else
+		   }else {
 			   System.out.println("36 > " + item.size());
+			   }
 		}
 		return dateMap;
 	}
 	
 	
-	public static ArrayList<Settlement>  getNabSettlements(ArrayList<ArrayList<String>> retMap){
+	public static List<Settlement>  getNabSettlements(List<List<String>> retMap){
 	
 		ArrayList<Settlement> list=new ArrayList<>();
-		for (ArrayList<String> t : retMap){
+	 for (List<String> t : retMap){
 
-	   	boolean settlement  =false;
-		boolean terminalBool=false;
-
-		 Settlement settl=new Settlement();
-		
+	    	boolean settlement  =false;
+	//	boolean terminalBool=false;
+		 Settlement settl=new Settlement();		
 		 settl.purchAmount=0f;
-		 int index=0; 
+	//	 int index=0; 
 		for (String r : t) {//String inside Array String x
 			
 			String[] stSplit=r.split(" "); //split String by space to detriment what's in our String  
 			//cleanUp array 
-			List<String> cleanSplit=new ArrayList<String>(Arrays.asList(stSplit));
+			List<String> cleanSplit=new ArrayList<>(Arrays.asList(stSplit));
 		 cleanSplit.removeAll(Arrays.asList(""," ",null));
-		 String stS=cleanSplit.get(0);
+		// String stS=cleanSplit.get(0);
 		 
 		 
 		 if(!settlement){
@@ -297,29 +278,29 @@ private static Date formatStrongToDate(String dateInString){
 	 * Read all the files 
 	 * You need to sepeerate from Log files and Reciept files 
 	 * */
-	private ArrayList<ArrayList<String>> createReceiptMap(){
+	private List<List<String>> createReceiptMap(){
 		
-		ArrayList<ArrayList<String>> map=new ArrayList<ArrayList<String>>();//add all to map 
+		List<List<String>> map = new ArrayList<>();//add all to map 
 		
 		//int mapIndex=0;
 		
 		//final String folderPath = "C:\\PC_EFT";
-		final File folder = new File("/Users/betwar/Desktop/temp/xy2");
+		final File folder = new File("/Users/betwar/Desktop/PC_EFT_XY");
 		List<File> files= listFilesForFolder(folder);
 		
 		
 	
 		for(File file:files){
-			
+			  FileInputStream fstream  = null;
 	     	try{
 	
-			   FileInputStream fstream = new FileInputStream(file);
+			    fstream = new FileInputStream(file);
 			   BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
 			   String strLine;
 			   boolean bool=false;
 			   int lineCounter=0; //if is line counter 2 that make ziro and add to array 
 			   /* read the log File line by line */
-			   ArrayList<String> array=new ArrayList<String>();
+			   ArrayList<String> array=new ArrayList<>();
 			   while ((strLine = br.readLine()) != null)   {
 				  
 				  //  CUSTOMER COPY
@@ -337,16 +318,14 @@ private static Date formatStrongToDate(String dateInString){
 				    	if(!bool && lineCounter==2){
 				    		@SuppressWarnings("unchecked")
 							ArrayList<String> cloneArray=(ArrayList<String>) array.clone();
-				    		if(cloneArray.size()>5)
-				    		map.add(cloneArray);
+				    		if(cloneArray.size()>5) {
+				    		     map.add(cloneArray);
+				    		     }
 					    	array.clear();
 					    	lineCounter=0;
 				    	}
-				    
-				    	
-				    	
-				    
-				    if(bool && strLine.trim().length()>1){				    	
+
+				   if(bool && strLine.trim().length()>1){				    	
 				    	array.add(strLine.trim());	
 				    	
 				    }
@@ -355,9 +334,12 @@ private static Date formatStrongToDate(String dateInString){
 
 			
 			      }
+		  fstream.close();
 			br.close(); 
 	     	} catch (Exception e) {
 				     System.err.println("Error: " + e.getMessage());
+			}finally {
+				
 			}
 		  }
 		
@@ -375,49 +357,35 @@ private static Date formatStrongToDate(String dateInString){
 	 * 
 	 * */
 	
-	private HashMap<String,ArrayList<CustomItem>> createCustomMap(){
-		
-		ArrayList<ArrayList<String>> array=stringMap;
-		
-		HashMap<String,ArrayList<CustomItem>> map=new HashMap<String,ArrayList<CustomItem>>();		
-			
-		for(ArrayList<String> list:array){
-			
-			
-			CustomItem item=new CustomItem();
-			
+	private Map<String,List<CustomItem>> createCustomMap(){	
+		List<List<String>> array=stringMap;	
+		Map<String,List<CustomItem>> map=new HashMap<>();				
+		for(List<String> list:array){
+			CustomItem item=new CustomItem();	
 			item.setMerchantId(list.get(2).split(" ")[6]);
 			item.setCardType(list.get(7));	
-			//item.status=list.get(12);//
 			item.setTerminalId(list.get(3).split(" ")[8]);
-		//	System.out.println(list.get(3).split(" ")[8]);
-		boolean statusBool=false;
-		int statusCounter=0;
-		
-			
-			
+		boolean  statusBool = false;
+		int   statusCounter =     0;
+
 			for(String r : list){
-				
-				
 				if(statusBool) {
-					if(statusCounter<1)
+					if(statusCounter<1) {
 						statusCounter++;
-					else 
-						if(statusCounter==1)
-					{	
-						statusCounter=0;
-						item.setStatus(r);
-						statusBool=false;	
-					}
-				}
+				   	 }else 
+						if(statusCounter==1) {	
+								statusCounter=0;
+								item.setStatus(r);
+								statusBool=false;	
+							}
+						}
 				
 				
 				if(r.startsWith("#")) {//check if it's card number 
 					item.setCardNumber(r.split(" ")[0].substring(12)); //last 4 digit 
 					statusBool=true;		
 					}
-				    else
-				    	if(r.contains("Date/Time")){
+				    else if(r.contains("Date/Time")){
 					 Date d = TypeConvertor.stringToDate(r.substring(9).trim());
 					item.setDateTime(d);
 				}
@@ -425,14 +393,15 @@ private static Date formatStrongToDate(String dateInString){
 					if(r.startsWith("PURCHASE")){
 						
 						String[] s=r.split(" ");
-						item.setPurchaseAmount(s[s.length-1].substring(1));
+						String value = s[s.length-1].replace("$", "");
+						item.setPurchaseAmount(value);
 						}
 				else 
 					if(r.contains("TOTAL AUD")){
 						String[] t=r.split(" ");
-						t[t.length-1].substring(1);
 						
-						item.setTotalAmount(Float.valueOf(t[t.length-1].substring(1)));
+						String value = t[t.length-1].replace("$", "");
+						item.setTotalAmount(Float.valueOf(value));
 						}
 			      }	
 				
@@ -445,7 +414,7 @@ private static Date formatStrongToDate(String dateInString){
 			map.put(item.getCardType(),c);
 			}else{
 				
-			ArrayList<CustomItem> c=map.get(item.getCardType());
+				List<CustomItem> c=map.get(item.getCardType());
 			c.add(item);
 				
 			}//else
@@ -458,30 +427,27 @@ private static Date formatStrongToDate(String dateInString){
 	 * 
 	 * @return List<CustomItem>
 	 */
-private List<CustomItem> createListItems(){
+  private List<CustomItem> createListItems(){
 		
-		ArrayList<ArrayList<String>> array=stringMap;
+	   List<List<String>> array=stringMap;	
+		List<CustomItem> items = new ArrayList<>();
 		
-		List<CustomItem> items = new ArrayList<CustomItem>();
-		
-			//Create Items out of String array 
-		for(ArrayList<String> list:array){
+		//Create Items out of String array 
+		for(List<String> list:array){
 			CustomItem item=new CustomItem();
 			item.setMerchantId(list.get(2).split(" ")[6]);
 			item.setCardType(list.get(7));	
-			//item.status=list.get(12);//
 			item.setTerminalId(list.get(3).split(" ")[8]);
-			//System.out.println(list.get(3).split(" ")[8]);
+			
+			
+			
 		boolean statusBool=false;
 		int statusCounter=0;
-
 			for(String r : list){
-				if(statusBool) {
-					if(statusCounter<1)
+				  if(statusBool) {
+					if(statusCounter<1) {
 						statusCounter++;
-					else 
-						if(statusCounter==1)
-					{	
+					}else if(statusCounter==1){	
 						statusCounter=0;
 						item.setStatus(r);
 						statusBool=false;	
@@ -489,29 +455,29 @@ private List<CustomItem> createListItems(){
 				}
 				
 				
-				if(r.startsWith("#")) {//check if it's card number 
+		   	 if(r.startsWith("#")) {//check if it's card number 
 					item.setCardNumber(r.split(" ")[0].substring(12)); //last 4 digit 
 					statusBool=true;		
-					}
-				    else
-				    	if(r.contains("Date/Time")){
-					 Date d = TypeConvertor.stringToDate(r.substring(9).trim());
-					item.setDateTime(d);
-				}
-				else 
-					if(r.startsWith("PURCHASE")){
-						
-						String[] s=r.split(" ");
-						item.setPurchaseAmount(s[s.length-1].substring(1));
-						}
-				else 
-					if(r.contains("TOTAL AUD")){
-						String[] t=r.split(" ");
-						t[t.length-1].substring(1);
-						
-						item.setTotalAmount(Float.valueOf(t[t.length-1].substring(1)));
-						}
-			      }	
+					}else 
+				    	    if(r.contains("Date/Time")){
+					    Date d = TypeConvertor.stringToDate(r.substring(9).trim());
+					        item.setDateTime(d);
+							}
+							else 
+								if(r.startsWith("PURCHASE")){
+									String[] s=r.split(" ");
+									String strFloat = s[s.length-1];
+									strFloat = 	strFloat.replace("$", "");
+									item.setPurchaseAmount(strFloat);
+									}else 
+								        if(r.contains("TOTAL AUD")){
+											String[] t=r.split(" ");
+											
+											String strFloat = t[t.length-1];
+											strFloat = 	strFloat.replace("$", "");
+											item.setTotalAmount(Float.valueOf(strFloat));
+									}
+						      }	
 				
 				items.add(item);
 
@@ -533,14 +499,16 @@ private List<CustomItem> createListItems(){
 	
 		final File folder = new File(outPutFolder+"json/");
 		if(folder.listFiles().length>0)  //If files exist delete first 
-		for(File f : folder.listFiles()) f.delete();
+		for(File f : folder.listFiles()) {
+			f.delete();
+		}
 		
-		StringBuffer stBuffer= new StringBuffer();
+		StringBuilder stBuffer= new StringBuilder();
 		stBuffer.append("f-");
 		for(CustomItem obj: listItems){
-			if(stBuffer.length()==2)
+			if(stBuffer.length()==2) {
 			  stBuffer.append(obj.getDate());
-			
+			     }
 			      
 			
 			array.add(obj.toJson());
@@ -578,18 +546,16 @@ private List<CustomItem> createListItems(){
 
            Iterator<Entry<Date, ArrayList<String>>> it =bla.entrySet().iterator();
       	   FileWriter file=null;
-	        File rFile = new File("settlement");
-	       rFile.createNewFile();
-	 
-			file = new FileWriter(rFile);
-		
+	       File rFile = new File("settlement");
+
+		if(rFile.createNewFile()){
+	       file = new FileWriter(rFile);
+		}
 			 
 		 BufferedWriter bw = new BufferedWriter(file);
 		    
-while(it.hasNext()){
-
-	Entry<Date, ArrayList<String>> ite = (Entry<Date, ArrayList<String>>) it.next();
-
+   while(it.hasNext()){
+	Entry<Date, ArrayList<String>> ite = it.next();
 	 Date key =ite.getKey();
 	 if(key.after(startD)&&key.before(endD)){
 	 List<String>li= ite.getValue();
