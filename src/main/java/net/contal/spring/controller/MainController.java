@@ -10,12 +10,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import net.contal.spring.dao.DocketDataDaoImpl;
 import net.contal.spring.datahandler.DataMapper;
 import net.contal.spring.datahandler.SqliteDbHandler;
 import net.contal.spring.datahandler.SumCustomHandler;
@@ -31,8 +33,13 @@ import net.contal.spring.model.TotalTerminalCard;
 @Controller
 public class MainController {
 
+	
+	@Autowired
+	DocketDataDaoImpl daoCustom;
+	
 	  @GetMapping("/")
 	public String index( Model model){  
+		  daoCustom.getAllItems();
 		  model.addAttribute("datesDto",new DatesDto());
 		 return "index";
 	}

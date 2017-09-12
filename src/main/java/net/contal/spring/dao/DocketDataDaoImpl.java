@@ -1,14 +1,24 @@
 package net.contal.spring.dao;
 
 import java.util.Date;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class DocketDataDaoImpl implements DocketDataDao {
-
 	
+	@Autowired
+     SessionFactory sessionFactory;
+	
+	public void setSessionFactory(SessionFactory sessionFactory){
+		this.sessionFactory = sessionFactory;
+	}
 
 	
 	@Override
 	public void getAllItems() {
+		System.out.println(this.sessionFactory.getCurrentSession().getStatistics().toString());
 
 
 	}

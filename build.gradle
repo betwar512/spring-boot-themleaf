@@ -15,7 +15,7 @@ apply plugin: 'eclipse-wtp'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'war'
 
-version = '0.0.1-SNAPSHOT'
+version = '0.5.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
@@ -34,7 +34,8 @@ eclipse {
 }
 
 dependencies {
-	 //compile('org.springframework.boot:spring-boot-starter-jdbc')
+
+     compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	 compile('org.springframework.boot:spring-boot-starter-web')
      compile("org.springframework.boot:spring-boot-starter-thymeleaf")
      compile("org.springframework.boot:spring-boot-devtools")
@@ -46,6 +47,9 @@ dependencies {
   // compile group: 'org.thymeleaf', name: 'thymeleaf', version: '3.0.7.RELEASE'
   // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
      testCompile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.8.11.2'
+     // https://mvnrepository.com/artifact/com.ibm.informix/jdbc
+     compile group: 'com.ibm.informix', name: 'jdbc', version:  '4.10.8.1'
+     
   
 
 
