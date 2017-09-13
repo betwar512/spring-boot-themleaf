@@ -28,6 +28,54 @@ import com.google.gson.JsonParser;
 	 
   private static SERVERS SERVER_NAME;
 	 
+  public enum ENTITIES{
+		 XY("XY2 Bar"),
+		 ELIXIR("Elixir Rooftop");
+		 private final String entityName;
+		 private static final Map<String, ENTITIES> lookup = new HashMap<>(); 
+		 static{
+			 for(ENTITIES s:ENTITIES.values()){
+				 lookup.put(s.toString(), s);
+			 }
+		 }
+		private ENTITIES(String entityName){
+			this.entityName=entityName;
+		       }
+	     public String getEntityName(){
+			return this.entityName;
+		     }	
+	     public static ENTITIES get(String entityName){
+	    	return lookup.get(entityName);
+	     }
+	  
+  }
+  
+  
+  public enum BANKS {
+		 NAB("NAB"),
+		 WESTPAC("WESTPAC");
+		 private final String bankName;
+		 private static final Map<String, BANKS> lookup = new HashMap<>(); 
+		 static{
+			 for(BANKS s:BANKS.values()){
+				 lookup.put(s.toString(), s);
+			 }
+		 }
+		private BANKS(String bankName){
+			this.bankName=bankName;
+		       }
+	     public String getBankName(){
+			return this.bankName;
+		     }	
+	     public static BANKS get(String bankName){
+	    	return lookup.get(bankName);
+	     }
+	  
+}
+  
+  
+  
+  
 	public enum SERVERS{
 	 NAB("db.db"),
 	 WESTPAC("fpos.db");

@@ -5,7 +5,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import net.contal.spring.model.Settlement;
+import net.contal.spring.dto.SettlementDto;
+import net.contal.spring.utils.TypeConvertor;
 
 /*
  * Use LogCustomHelper property for passing the String array to settlements
@@ -14,29 +15,27 @@ import net.contal.spring.model.Settlement;
  * */
 public class SettlementCustomHandler {
 
+	  private SettlementCustomHandler() {
+		    throw new IllegalStateException("Utility class");
+		  }
 
-	public static ArrayList<Settlement>  getWestpacSettlements(ArrayList<ArrayList<String>> retMap){
-		
-		
-		//SettlementWriter.writeToFile(retMap);
-		
-		ArrayList<Settlement> list=new ArrayList<>();
-		for (ArrayList<String> t : retMap){
+	public static List<SettlementDto>  getWestpacSettlements(List<List<String>> retMap){
+
+	List<SettlementDto> list=new ArrayList<>();
+	for (List<String> t : retMap){
 
 	   	boolean settlement  =false;
 		boolean terminalBool=false;
 
-		 Settlement settl=new Settlement();
-		
+		 SettlementDto settl=new SettlementDto();
+	//	int index = 0;
 		 settl.purchAmount=0f;
-		 int index=0; 
 		for (String r : t) {//String inside Array String x
 			String[] stSplit=r.split(" "); //split String by space to detriment what's in our String  
 			//cleanUp array 
-			List<String> cleanSplit=new ArrayList<String>(Arrays.asList(stSplit));
+			List<String> cleanSplit=new ArrayList<>(Arrays.asList(stSplit));
 		 cleanSplit.removeAll(Arrays.asList(""," ",null));
 			String stS=cleanSplit.get(0);
-		  //  preSettlementCounter++;
 		    if(r.contains("PRE-SETTLEMENT")){
 					settlement=true;
 	    }    
@@ -55,70 +54,54 @@ public class SettlementCustomHandler {
 								settl.terminalId=cleanSplit.get(2);
 							else
 								if(stS.contains("DATE/TIME")){
-//									String date=cleanSplit.get(1) + cleanSplit.get(2);
-//									settl.date=TypeConvertor.settelmentDate(date);
-									
-									
-									
 										String month="";
-										String year="";
+									//	String year="";
 										String date="";
 										String day=cleanSplit.get(1).substring(0, 2);
-										if(cleanSplit.get(1).length()<5){ //FEB issue 
-									//	System.out.println("Less Time date");
-										month=cleanSplit.get(1).substring(2, 4);
-										
-										
-								//		String yearAfter = t.get(index+1);
-										
-										//String[] spList = yearAfter.split(" ");
-										 year ="2016";//+ spList[0]; 
-										month+="B";
-					
-										date= month +" "+day+" "+year+" 00:00" ; //+" " +spList[1];
-										
+										StringBuilder stBuilder = new StringBuilder();
+									if(cleanSplit.get(1).length()<5){ //FEB issue 				 
+										  month = cleanSplit.get(1).substring(2, 4);
+										//month+= "B";
+									//    year ="2016";//+ spList[0]; 
+										//date= month +" "+day+" "+year+" 00:00" ; //+" " +spList[1];
+										stBuilder.append(month+"B"+ " " + day + " " + "2016" + " 00:00");
 										}else{ 
 										//TODO problem here need to be changed 
-										 month=cleanSplit.get(1).substring(2,5);
-										 year =" 20"+ cleanSplit.get(1).substring(5, 7);
-										date	= month +" "+day+" "+year +" "+cleanSplit.get(2);
+											
+											stBuilder.append(cleanSplit.get(1).substring(2,5) + " " + 
+													day + " " + " 20"+ cleanSplit.get(1).substring(5, 7) + 
+												" " + cleanSplit.get(2))	;
+											
+//										 month = cleanSplit.get(1).substring(2,5);
+//										 year =" 20"+ cleanSplit.get(1).substring(5, 7);
+//										date	= month +" "+day+" "+ year +" "+cleanSplit.get(2);
 										
-										 }							 
-                               System.out.println(date);
-                               if(date== "")
+									 }							 
+                               System.out.println(stBuilder.toString());
+                               if(date== "") {
                             	   System.out.println("Empty date ");
-									 Date d = TypeConvertor.convertStringToDateElixer(date);
-									 settl.date=d;
-									}
-									else
-										if(r.contains("NET TOTAL AUD"))
+                            	   }
+								Date d = TypeConvertor.convertStringToDateElixer(stBuilder.toString());
+								settl.date=d;
+									}else
+										if(r.contains("NET TOTAL AUD")) {
 											settl.purchAmount=Float.valueOf(cleanSplit.get(3).substring(1));			
-					 						else
-					 							if(r.contains("TOTAL PUR CNT"))settl.purchCount=cleanSplit.get(3);
-								index++;	}
+										}  else
+					 							if(r.contains("TOTAL PUR CNT")) {
+					 								settl.purchCount=cleanSplit.get(3);
+					 								}
+							//	index++;
+								}
 				
+
+				
+                 }
+		
+				   if(settl.isValid()) {
+								list.add(settl);
 								
-//			if(!r.contains("-----------")){	
-//				try (Writer writer = new BufferedWriter(new FileWriter("myfile.txt", true))) {
-//			   writer.append(r);
-//			    } catch (UnsupportedEncodingException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				} catch (FileNotFoundException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTra0
-//				} catch (IOException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//			}
-				
-       }
-		
-										if(settl.isValid())
-													list.add(settl);
-															settlement=false;
-		
+								}
+				          settlement = false;
 	 }
 		return list;
    }	

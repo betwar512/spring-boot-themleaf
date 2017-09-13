@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.contal.spring.model.CustomItem;
-import net.contal.spring.model.Settlement;
+import net.contal.spring.dto.CustomItemDto;
+import net.contal.spring.dto.SettlementDto;
 
 /**
  * 
@@ -21,18 +21,18 @@ public class DataMapper {
 	 * Key = CardType 
 	 * 
 	 * */
-	public static Map<String,List<CustomItem>> createMap(List<CustomItem> items){
+	public static Map<String,List<CustomItemDto>> createMap(List<CustomItemDto> items){
 		
-		Map<String,List<CustomItem>> map=new HashMap<>();
+		Map<String,List<CustomItemDto>> map=new HashMap<>();
 
-		for(CustomItem item:items){
+		for(CustomItemDto item:items){
 		
 	    	if(!map.containsKey(item.getCardType())){	
-	    		List<CustomItem> c = new ArrayList<>();
+	    		List<CustomItemDto> c = new ArrayList<>();
 			c.add(item);
 		    map.put(item.getCardType(),c);
 		   }else{	
-			List<CustomItem> c=map.get(item.getCardType());
+			List<CustomItemDto> c=map.get(item.getCardType());
 		    c.add(item);		
 				}//else
 			}
@@ -44,18 +44,18 @@ public class DataMapper {
 	 * Map take place by using card type as a Key 
 	 * 
 	 * */
-	public static Map<String,List<CustomItem>> createTerminalGroup(List<CustomItem> items){		
-		Map<String,List<CustomItem>> map=new HashMap<>();
+	public static Map<String,List<CustomItemDto>> createTerminalGroup(List<CustomItemDto> items){		
+		Map<String,List<CustomItemDto>> map=new HashMap<>();
 
-		for(CustomItem item:items){
+		for(CustomItemDto item:items){
 		
 			if(!map.containsKey(item.getTerminalId())){	
-				List<CustomItem> c=new ArrayList<>();
+				List<CustomItemDto> c=new ArrayList<>();
 					c.add(item);
 						map.put(item.getTerminalId(),c);
 					}else{
 			
-						List<CustomItem> c = map.get(item.getTerminalId());
+						List<CustomItemDto> c = map.get(item.getTerminalId());
 								c.add(item);
 				}//else
 			}	
@@ -68,10 +68,10 @@ public class DataMapper {
 	 * Time comparison 
 	 * 
 	 */
-	public static List<Settlement> afterPassedDateSettl(List<Settlement> list,Date minDate,Date maxDate){
+	public static List<SettlementDto> afterPassedDateSettl(List<SettlementDto> list,Date minDate,Date maxDate){
 		
-		List<Settlement> itemsAll=new ArrayList<>();
-			for (Settlement item : list) {
+		List<SettlementDto> itemsAll=new ArrayList<>();
+			for (SettlementDto item : list) {
 				if(item.date.after(minDate) && item.date.before(maxDate))
 					itemsAll.add(item);	
 						
@@ -84,10 +84,10 @@ public class DataMapper {
 	 * Time comparison 
 	 * 
 	 */
-	public static List<CustomItem> afterPassedDate(List<CustomItem> list,Date minDate,Date maxDate){
+	public static List<CustomItemDto> afterPassedDate(List<CustomItemDto> list,Date minDate,Date maxDate){
 		
-		List<CustomItem> itemsAll=new ArrayList<>();
-			for (CustomItem customItem : list) {
+		List<CustomItemDto> itemsAll=new ArrayList<>();
+			for (CustomItemDto customItem : list) {
 				if(customItem.getDateTime().after(minDate)&& customItem.getDateTime().before(maxDate))
 					itemsAll.add(customItem);	
 						

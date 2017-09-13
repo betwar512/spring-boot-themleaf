@@ -4,7 +4,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import net.contal.spring.model.*;
+
+import net.contal.spring.dto.CustomItemDto;
+import net.contal.spring.dto.GroupTotalDto;
+import net.contal.spring.dto.TotalTerminalCardDto;
 
 
 /**
@@ -21,12 +24,12 @@ public abstract class SumCustomHandler {
 	/*
 	 * Coagulate total for the map 
 	 * */
-	public static Float getTotal(Map<String,List<CustomItem>> map ){
+	public static Float getTotal(Map<String,List<CustomItemDto>> map ){
 		Float total=0.0f;
 		//Map iterator values 
-		for (List<CustomItem> items : map.values()) {
+		for (List<CustomItemDto> items : map.values()) {
 			//total all 
-			for (CustomItem customItem : items) {	
+			for (CustomItemDto customItem : items) {	
 				if(customItem.getTotalAmount()!=null) {
 	                    total+=customItem.getTotalAmount();	
 	                 }		
@@ -40,10 +43,10 @@ public abstract class SumCustomHandler {
 	 * GetTotal by ArrayList 
 	 * 
 	 * */
-	public static Double getTotal(List<CustomItem> list ){
+	public static Double getTotal(List<CustomItemDto> list ){
 		Double total=new Double(0);
 		//Map iterator values 
-		for (CustomItem item :list) {
+		for (CustomItemDto item :list) {
 			//total all 
 				if(item.getTotalAmount()!=null){
 					if(item.getStatus().contains("APPROVED")) {
@@ -62,11 +65,11 @@ public abstract class SumCustomHandler {
 	 * Convert mapped items to ArrayList 
 	 */
 	
-	public static List<CustomItem>  mapToList(Map<String,List<CustomItem>> map ){
-		List<CustomItem> itemsAll=new ArrayList<>();
+	public static List<CustomItemDto>  mapToList(Map<String,List<CustomItemDto>> map ){
+		List<CustomItemDto> itemsAll=new ArrayList<>();
 		//Map iterator values 
-		for (List<CustomItem> items : map.values()) {
-			for (CustomItem customItem : items) 
+		for (List<CustomItemDto> items : map.values()) {
+			for (CustomItemDto customItem : items) 
 				itemsAll.add(customItem);		
 		}
 		return itemsAll;
@@ -80,17 +83,17 @@ public abstract class SumCustomHandler {
 	 * Calculate total for Map by key groups  
 	 * Return array of type GroupTotal 
 	 * */
-	public static List<GroupTotal> getGroupTotal(Map<String,List<CustomItem>> map){
+	public static List<GroupTotalDto> getGroupTotal(Map<String,List<CustomItemDto>> map){
 		
 		
-		List<GroupTotal> groupTotals=new ArrayList<>(); //pass as Attribute 
+		List<GroupTotalDto> groupTotals=new ArrayList<>(); //pass as Attribute 
 		//iterat with key 
 		for(String key : map.keySet()) {
-		 GroupTotal gp=new GroupTotal();
+		 GroupTotalDto gp=new GroupTotalDto();
 		 gp.key=key;
-			List<CustomItem> keyValues=map.get(key);
+			List<CustomItemDto> keyValues=map.get(key);
 			Double groupTotal=new Double(0);
-			    for(CustomItem it:keyValues){
+			    for(CustomItemDto it:keyValues){
 			    	if(it.getStatus().contains("APPROVED"))
 			    groupTotal+=it.getTotalAmount();		    	
 			    }
@@ -110,20 +113,20 @@ public abstract class SumCustomHandler {
 	 * OutPut: Map Class: TotalTerminalCard
 	 * Return array of type GroupTotal 
 	 * */
-	public static List<TotalTerminalCard> getTerminalCardTotal(Map<String,List<CustomItem>> map){
-		List<TotalTerminalCard> totalTerminalCard =  new ArrayList<>(); //pass as Attribute 
-		Iterator<Entry<String, List<CustomItem>>> iter = map.entrySet().iterator();
+	public static List<TotalTerminalCardDto> getTerminalCardTotal(Map<String,List<CustomItemDto>> map){
+		List<TotalTerminalCardDto> totalTerminalCard =  new ArrayList<>(); //pass as Attribute 
+		Iterator<Entry<String, List<CustomItemDto>>> iter = map.entrySet().iterator();
 	   while(iter.hasNext()) {
-		     Entry<String, List<CustomItem>> entrySet = iter.next();
+		     Entry<String, List<CustomItemDto>> entrySet = iter.next();
 		     String key = entrySet.getKey();
-			 TotalTerminalCard gp = new TotalTerminalCard();
+			 TotalTerminalCardDto gp = new TotalTerminalCardDto();
 		     gp.terminalId = key;
-			 List<CustomItem> keyValues = entrySet.getValue();
+			 List<CustomItemDto> keyValues = entrySet.getValue();
 			//totals
 			Double groupTotal = Double.valueOf(0);
 			Double    mvTotal = Double.valueOf(0);
 			Double otherTotal = Double.valueOf(0);
-			  for(CustomItem it:keyValues){	    	
+			  for(CustomItemDto it:keyValues){	    	
 			    	if(it.getStatus().contains("APPROVED")){
 			    		groupTotal+=it.getTotalAmount();	
 				    
