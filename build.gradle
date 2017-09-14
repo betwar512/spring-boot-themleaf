@@ -50,7 +50,7 @@ dependencies {
    // https://mvnrepository.com/artifact/com.ibm.informix/jdbc
      compile group: 'com.ibm.informix', name: 'jdbc', version:  '4.10.8.1'
    // https://mvnrepository.com/artifact/com.h2database/h2
-    testCompile group: 'com.h2database', name: 'h2', version: '1.4.196'  
+     Compile group: 'com.h2database', name: 'h2', version: '1.4.196'  
      
 
 }
