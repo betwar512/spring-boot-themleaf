@@ -35,7 +35,7 @@ public class WestpacLogHelper {
 				 ZipReader zip = new ZipReader(logsUrl);
 				 List<CustomItemDto> listzip = zip.getListItems();    
 			       //Settlements in logs 
-			  this.settlementsString = getSettlement();
+			  this.settlementsString = getSettlement( logsUrl);
 			  this.settlements = SettlementCustomHandler.getWestpacSettlements(this.settlementsString);
 			/*-----------------------------------------------------------------*/	
 			logger.debug("Size before" + zip.getListItems().size());
@@ -51,7 +51,7 @@ public class WestpacLogHelper {
 			/*
 			 * Get all the settlements in log files 
 			 * */
-	private List<List<String>> getSettlement(){
+	private List<List<String>> getSettlement(String logsUrl){
 		List<List<String>> arrayList=new ArrayList<>();//add all to map 
 		final File folder = new File(ConfigUtils.getLogPath());
 	    List<File> files= listFilesForFolder(folder);
