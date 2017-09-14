@@ -4,23 +4,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import org.apache.log4j.Logger;
-
-import com.google.gson.JsonArray;
-
 import net.contal.spring.datahandler.SettlementCustomHandler;
 import net.contal.spring.dto.CustomItemDto;
 import net.contal.spring.dto.SettlementDto;
@@ -29,7 +23,7 @@ import net.contal.spring.utils.TypeConvertor;
 
 /**
  * @ westPac 
- * @author betwar
+ * @author A.H.Safaie 
  *
  */
 public class ZipReader {
@@ -45,11 +39,8 @@ public class ZipReader {
 	private String logsUrl;
 	private static final String   outPutFolder= "outfolder/";
 	//"C:\\log-out\\"; "/Users/betwar/Desktop/outfolder/";
-	private static final String jsonPath = outPutFolder+"json/";//json\\";
 	private static final String logPath = outPutFolder+"log/";
-	//private Map<String,List<CustomItemDto>> objectArray;  //CustomItemList 
 	private List<List<String>>  stringMap; //Map Strings
-//	private List<List<String>>  settlement; //Settlements for westPack 
 	private List<CustomItemDto> listItems = new ArrayList<>();
 	List<SettlementDto> list ;
 	List<File> files; //All the log unzip files 
@@ -73,8 +64,9 @@ public class ZipReader {
 			paths[2]=outPutFolder+"log";
 		   for(String st:paths){
 			  File file = new File(st);
-			      if(!file.isDirectory())
-				       	      file.mkdir();
+			      if(!file.isDirectory()) {
+				       	           file.mkdir();
+				       	        }
 		          }
 	}
 	
@@ -90,13 +82,8 @@ public class ZipReader {
 
 	 for(File file:zipFiles){
 		 List<File> filesUnzip;
-		 try {
 			filesUnzip = unzip(file);
 			this.files.addAll(filesUnzip);
-		} catch (IOException e) {
-			e.printStackTrace();
-		    }
-		
 		 }
 	 
 	this.files.addAll(listFilesForFolder(folder));
@@ -109,18 +96,18 @@ public class ZipReader {
 	 * Capture all the files with sufix : .LOG 
 	 */
 private  List<File> listFilesForFolder(final File folder) {
- List<File> files=new ArrayList<>();
+ List<File> folderFiles = new ArrayList<>();
 		  
 for (File fileEntry : folder.listFiles())  {//fpos Root folders 	
 	if(fileEntry.isDirectory()){
 		for(File secFolder:fileEntry.listFiles()){
 			if (secFolder.getName().endsWith("LOG") ||secFolder.getName().endsWith("log") ){					
-				    	 files.add(secFolder);
+				folderFiles.add(secFolder);
 					}
 				  }
 				}
 			}  
-		    return files;
+		    return folderFiles;
 		}
 
 	
@@ -250,13 +237,12 @@ private void createCustomItems(){
 			 * NOT 100% but works in most of a time  
 			 *
 			 */
-			boolean bool=false;
-			boolean statBool=false;
-			boolean auth=false;
-		    int cardCounter=0; //2 line after date/time
-		  //  int statusCounter=0;
-                int index =0;
-			for (String r : t) {//String inside Array String 		
+			boolean    bool  = false;
+			boolean statBool = false;
+			boolean    auth  = false;
+		    int cardCounter  = 0; //2 line after date/time
+            int       index  = 0;
+		for (String r : t) {//String inside Array String 		
 				//Try Items
 				String[] stSplit=r.split(" "); //split String by space to detriment what's in our String  
 		
@@ -377,7 +363,6 @@ private void createCustomItems(){
 		  	File[] tempFile = folder.listFiles();
 		  	
 		for (File fileEntry : tempFile) {//fpos Root folders 	
-				//fileEntry.add(fileEntry);   	
 				if(fileEntry.isDirectory()){
 				for(File secFolder:fileEntry.listFiles()){
 					if(secFolder.isDirectory()){
@@ -396,59 +381,15 @@ private void createCustomItems(){
 	
 	
 	
-	
-	
-	/**
-	 * @note write item list to Json 
-	 * @throws IOException
-	 */
-@Deprecated
-	private void writeToJson() throws IOException{
-		int i = 0;
-		JsonArray array = new JsonArray();
-		final File folder = new File(outPutFolder+"json\\");
-		if(folder.listFiles().length>0)  //If files exist delete first 
-			for(File f : folder.listFiles()) f.delete();
-		
-		Collections.sort(this.listItems, new CustomItemDto());//Sort it first 
-		StringBuffer stBuffer= new StringBuffer();
-		stBuffer.append("f-");
-		for(CustomItemDto obj: this.listItems){
-			stBuffer.append(obj.getDate());
-			
-			  
-			array.add(obj.toJson());
-			i++;
 
-			if (i%1000==0){
-				stBuffer.append("-e-");
-				stBuffer.append(obj.getDate());
-				logger.debug("count for array "+ i );
-				 FileWriter fileWriter = new FileWriter(jsonPath+stBuffer+".json");
-				 stBuffer=new StringBuffer();
-				 stBuffer.append("f-");
-				 fileWriter.write(array.toString());
-				 fileWriter.close();
-				 array = new JsonArray();
-				
-			}
-			
-		}
-		
-		if (i%1000!=0){ //Last array need to be write in here 
-			
-			logger.debug("count for array "+ i );
-			 FileWriter fileWriter = new FileWriter(jsonPath+"jsonArray-"+i+".json");
-			 fileWriter.write(array.toString());
-			 fileWriter.close();
-		}
-	}
 	
-	public static List<File> unzip(File zipFile) throws IOException{
+	public static List<File> unzip(File zipFile) {
 		checkFolders();
 	   byte[] buffer = new byte[1024]; 
 		List<File> files = new ArrayList<>();
-		ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
+
+	try(ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
+
 	    	//get the zipped file list entry
 	    	ZipEntry ze = zis.getNextEntry();
 	    	
@@ -457,9 +398,7 @@ private void createCustomItems(){
 	           File newFile = new File(logPath+fileName);
 	            if(!newFile.exists())  {  
 	           logger.debug("file unzip : "+ newFile.getAbsoluteFile());
-	            //create all non exists folders
-	           //else you will hit FileNotFoundException for compressed folder
-	          // new File(newFile.getParent()).mkdirs();     
+	            //create all non exists folders   
 	            FileOutputStream fos = new FileOutputStream(newFile);             
 	            int len;
 	            while ((len = zis.read(buffer)) > 0) {
@@ -470,11 +409,15 @@ private void createCustomItems(){
 	            } //If not exist 
 	            ze = zis.getNextEntry(); 
 	            files.add(newFile);
-	    	}
+	            
+	        	}
 	    	 zis.closeEntry();
 	     	zis.close();
 	     	
-	
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
 	     	
 	     	return files;
 	}

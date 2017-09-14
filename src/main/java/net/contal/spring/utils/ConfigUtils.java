@@ -22,6 +22,7 @@ import com.google.gson.JsonParser;
  * @version 0.0.5
  *
  */
+
  public class ConfigUtils {
 	 @Autowired
 	 Environment env;
@@ -239,7 +240,7 @@ import com.google.gson.JsonParser;
 	return file.getName();
 	}
 
-	
+	@Deprecated
 	public static String getLogPath(){
 	 return  SystemUtils.IS_OS_WINDOWS ? "C://PC_EFT":"/Users/Betwar/Desktop/PC_EFT_XY";
 	}
