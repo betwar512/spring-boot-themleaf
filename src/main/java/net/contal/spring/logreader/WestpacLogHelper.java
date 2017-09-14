@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
-
 import net.contal.spring.datahandler.SettlementCustomHandler;
 import net.contal.spring.dto.CustomItemDto;
 import net.contal.spring.dto.SettlementDto;
@@ -27,15 +26,13 @@ import net.contal.spring.utils.ConfigUtils;
 public class WestpacLogHelper {
 
 		public static final Logger logger = Logger.getLogger(WestpacLogHelper.class);
-					
-			//public Map<String,List<CustomItemDto>> objectArray;  //CustomItemList 
-		//	public List<List<String>>  stringMap; //Map Strings
+
 			private List<List<String>>  settlementsString; //Settlements for westPack 
 			private List<CustomItemDto> items;
 			private List<SettlementDto> settlements;
-			public WestpacLogHelper(){	
+			public WestpacLogHelper(String logsUrl){	
 				 this.items = new ArrayList<>();
-				 ZipReader zip = new ZipReader();
+				 ZipReader zip = new ZipReader(logsUrl);
 				 List<CustomItemDto> listzip = zip.getListItems();    
 			       //Settlements in logs 
 			  this.settlementsString = getSettlement();

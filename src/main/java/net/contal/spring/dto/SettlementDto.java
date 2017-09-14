@@ -260,6 +260,14 @@ public static String gettheLastOne(){
 		
 		
 		
+		
+
+		@Override
+		public String toString() {
+			return "SettlementDto [merchantId=" + merchantId + ", date=" + date + ", purchCount=" + purchCount
+					+ ", purchAmount=" + purchAmount + ", terminalId=" + terminalId + ", total=" + total + "]";
+		}
+
 
 		@Override
 		public int compare(SettlementDto o1, SettlementDto o2) {

@@ -3,18 +3,18 @@ package net.contal.spring.logreader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import com.google.gson.JsonArray;
+import org.apache.log4j.Logger;
 import net.contal.spring.dto.CustomItemDto;
 import net.contal.spring.dto.SettlementDto;
 import net.contal.spring.utils.CustomHelper;
 import net.contal.spring.utils.TypeConvertor;
+
 
 
 /**
@@ -24,11 +24,10 @@ import net.contal.spring.utils.TypeConvertor;
  */
 public class NABLogHelper {
 
-
-
-
+	public static final Logger logger = Logger.getLogger(NABLogHelper.class);
 	//PRE SETTLEMENT  
-	private static final String LOG_URL = "/Users/betwar/Desktop/PC_EFT_XY";
+	
+	private  String logUrl ;
 	private List<List<String>>  stringMap;
 	private List<CustomItemDto> items = new ArrayList<>();
 	private List<SettlementDto> listSettlements;
@@ -37,10 +36,17 @@ public class NABLogHelper {
 	 * @note : reads all the Log files and generates custome List by thtat Data 
 	 * @param str
 	 */
-	public NABLogHelper(){
-		  stringMap = createReceiptMap();
-		 this.items = createListItems();
+	public NABLogHelper(String logUrl){
+		this.logUrl = logUrl;
+		if(this.logUrl == null) {
+			throw new NullPointerException("Url cant be null ");
+		}
+		  createReceiptMap();
+		  createListItems();
 	      Collections.sort(this.items, new CustomItemDto());
+	      
+		this.listSettlements =     getNabSettlements(getSettlementForNab());
+		listSettlements.forEach(t->logger.debug(t.toString()));
 
 	}
 	
@@ -50,10 +56,10 @@ public class NABLogHelper {
 	 * Read all the files 
 	 * You need to separate from Log files and Reciept files 
 	 * */
-	private List<List<String>> createReceiptMap(){
+	private void createReceiptMap(){
 		
-		List<List<String>> map = new ArrayList<>();//add all to map 
-		final File folder = new File(LOG_URL);
+		this.stringMap = new ArrayList<>();//add all to map 
+		final File folder = new File(logUrl);
 		List<File> files= CustomHelper.listFilesForFolder(folder);
 
 		for(File file:files){
@@ -78,7 +84,7 @@ public class NABLogHelper {
 				    		@SuppressWarnings("unchecked")
 						List<String> cloneArray= (List<String>) array.clone();
 				    		if(cloneArray.size()>5) {
-				    		     map.add(cloneArray);
+				    			this.stringMap.add(cloneArray);
 				    		     }
 					    	array.clear();
 					    	lineCounter=0;
@@ -97,16 +103,16 @@ public class NABLogHelper {
 		  }
 		
 		
-		return map;
+	
 		}
 	
 	/**
 	 * 
 	 * @return List<CustomItem>
 	 */
-  private List<CustomItemDto> createListItems(){	
+  private void createListItems(){	
 	   List<List<String>>       array = stringMap;	
-		List<CustomItemDto> listItems = new ArrayList<>();
+		this.items = new ArrayList<>();
 		
 		//Create Items out of String array 
 		for(List<String> list:array){
@@ -154,69 +160,130 @@ public class NABLogHelper {
 											item.setTotalAmount(Float.valueOf(strFloat));
 									}
 						      }				
-			 listItems.add(item);
+			 this.items.add(item);
 		}//foreach
-		return items;
 	}
 	
 
-	
-
-	/*------------------------------------------------------------------------*/
-	
-	/*------------------------------------------------------------------*/
-
-	/**
-	 * @note write item list to Json 
-	 * @throws IOException
+  
+  /**
+	 * @param folderPath
+	 * @return
 	 */
-	public static void writeToJson(List<CustomItemDto> listItems) throws IOException{
-		int i = 0;
-		JsonArray array = new JsonArray();
-		final String   outPutFolder="/Users/betwar/Desktop/outfolder/";
-	
-		final File folder = new File(outPutFolder+"json/");
-		if(folder.listFiles().length>0) { //If files exist delete first 
-		for(File f : folder.listFiles()) {
-			f.delete();
-		   }
-		}
+	private  List<List<String>> getSettlementForNab(){
 		
-		StringBuilder stBuffer= new StringBuilder();
-		stBuffer.append("f-");
-		for(CustomItemDto obj: listItems){
-			if(stBuffer.length()==2) {
-			  stBuffer.append(obj.getDate());
-			     }
-			      
-			
-			array.add(obj.toJson());
-			i++;
+		List<List<String>> map = new ArrayList<>();//add all to map 
+		final File folder = new File(logUrl);
+		List<File> files= CustomHelper.listFilesForFolder(folder);
 
-			if (i%1000==0){
-				stBuffer.append("-e-");
-				stBuffer.append(obj.getDate());
-				System.out.println("count for array "+ i );
-				 FileWriter fileWriter = new FileWriter(outPutFolder+"json/"+stBuffer+".json");
-			    stBuffer.delete(0, stBuffer.length());
-				 stBuffer.append("f-");
-				 fileWriter.write(array.toString());
-				 fileWriter.close();
-				 array = new JsonArray();
-				
-			}
+		for(File file:files){
+		 try(FileInputStream fstream = new FileInputStream(file)){
+			boolean bool = false;
+			int lineCounter=0;
 			
-		}
+			   BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+			   String strLine;
+			   /* read the log File line by line */
+			   	ArrayList<String> array=new ArrayList<>();
+			   while ((strLine = br.readLine()) != null)   {
+			  //doing the tag catching here 
+				   if(strLine.trim().equals("PRE SETTLEMENT")){
+				      	bool = true;
+				        }else if(bool && strLine.equals("------------------------")){	    
+				      	lineCounter++;
+				    	   }     
+				    	if(bool && lineCounter==3){
+				    		@SuppressWarnings("unchecked")
+							List<String> cloneArray=(List<String>) array.clone();
+				    		if(cloneArray.size()>5) {
+				    		         map.add(cloneArray);
+				    	          	}
+					    	array.clear();
+					    	lineCounter=0;
+					    	bool=false;
+				    	}
+
+				    
+				    if(bool && strLine.trim().length()>1){				    	
+				    	array.add(strLine.trim());	
+				    	logger.debug(strLine.trim());
+				    }
+			      }
+			br.close(); 
+	     	} catch (Exception e) {
+				     System.err.println("Error: " + e.getMessage());
+			}
+		  }
+
+		return map;
+	}//Method  
+  
+  
+  
+	/**
+	 * 
+	 * @param retMap
+	 * @return
+	 */
+  public static List<SettlementDto>  getNabSettlements(List<List<String>> retMap){
 		
-		if (i%1000!=0){ //Last array need to be write in here 
-			stBuffer.append("-e-");
-			stBuffer.append(listItems.get(listItems.size()-1).getDate());
-			System.out.println("count for array "+ i );
-			 FileWriter fileWriter = new FileWriter(outPutFolder+"json\\"+stBuffer+".json");
-			 fileWriter.write(array.toString());
-			 fileWriter.close();
-		}
+		ArrayList<SettlementDto> list=new ArrayList<>();
+		for (List<String> t : retMap){
+
+	   	boolean settlement  = false;
+		SettlementDto settl =  null;
+		for (String r : t) {//String inside Array String x
+			
+			String[] stSplit=r.split(" "); //split String by space to detriment what's in our String  
+			//cleanUp array 
+			List<String> cleanSplit=new ArrayList<>(Arrays.asList(stSplit));
+		 cleanSplit.removeAll(Arrays.asList(""," ",null));
+	
+		 if(!settlement){
+			 logger.debug(r);
+		    if(r.contains("PRE SETTLEMENT")){
+		    	 settl = new SettlementDto();
+		    	 settl.purchAmount=0f;
+				settlement=true;
+                  }      
+		 }else{
+			 logger.debug(r);
+			 if(r.contains("Merchant ID"))
+					settl.merchantId=cleanSplit.get(2);	     
+				else
+					if(r.contains("Terminal ID ")) 
+						settl.terminalId=cleanSplit.get(2);
+					else 
+						if(r.contains("SETTLEMENT") && !r.contains("PRE")){ //Date 
+							String time = cleanSplit.get(1);
+							 Date d=  CustomHelper.formatToDate(time);
+							 settl.setDate(d);
+						}else
+							if(r.contains("Purch Amount")){
+								String purchaseAmount = cleanSplit.get(2);
+								purchaseAmount=  purchaseAmount.replace("$","");
+								settl.purchAmount=Float.parseFloat(purchaseAmount);
+								
+							}else
+								if(r.contains("Purch Count")){
+								String count=	cleanSplit.get(2);
+								settl.setPurchCount(count);
+								}else 
+									if(r.contains("------------------------")) {
+									   settlement=false;
+									   list.add(settl);
+									   }
+			 
+			 
+	             } 
+			} //Second for 
+		
+		}//Firdt Foor
+	
+	return list;
 	}
+	
+
 	
 
 	/*--------------------------------------------------------------------------*/

@@ -14,11 +14,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.log4j.Logger;
 
-public class CustomHelper {
+
+public abstract class CustomHelper {
+	public static Logger logger = Logger.getLogger(CustomHelper.class);
 	public static final String DATE_TIME_GENERAL = "DD/MM/YYYY HH:mm";
 	public static final String DATE_TIME = "dd/MM/yy hh:mm";
 	public static final String DATE = "dd/MM/yy";
+	
+	  private CustomHelper() {
+		    throw new IllegalStateException("Utility class");
+		  }
+
+	
 	public static Date stringToDateTime(String str) throws ParseException {
 		if(str != null && !str.isEmpty()) {	
 		   SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_GENERAL);
@@ -37,7 +46,7 @@ public class CustomHelper {
 			    int minutesToNextHour = 60 - minutes;
 			    int secondsToNextHour = 60 - seconds;
 			    int millisToNextHour = 1000 - millis;
-			    return minutesToNextHour*60*1000 + secondsToNextHour*1000 + millisToNextHour;
+			    return (minutesToNextHour*60*1000) + (secondsToNextHour*1000) + millisToNextHour;
 			}
 	   
 	
@@ -59,14 +68,18 @@ public class CustomHelper {
 	 return date;
 	}
 	
-
+/**
+ * Format String with {"dd/MM/yy"} 
+ * @param strInput
+ * @return
+ */
  public static Date formatToDate(String strInput){
 	SimpleDateFormat sdfmt1 = new SimpleDateFormat(DATE);
 	Date dDate = null;
 	try {
 		dDate = sdfmt1.parse( strInput );			
 	} catch (ParseException e) {
-		e.printStackTrace();
+		logger.error(e);
 	  }
 	return dDate;
 	
@@ -85,6 +98,7 @@ public class CustomHelper {
 			for(File secFolder:fileEntry.listFiles()){
 				if( secFolder.isDirectory() && secFolder.getName().equals("Receipt")) {
 			        for(final File file: secFolder.listFiles()){
+			     logger.debug("RC file added : " + file.getName());
 			       	 	files.add(file);
 			        }
 			      
@@ -116,7 +130,7 @@ public class CustomHelper {
 			   file = new FileWriter(rFile);
 			   }
 		   } catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e);
 		}
 			 
    try(BufferedWriter bw = new BufferedWriter(file)){		    
@@ -125,18 +139,18 @@ public class CustomHelper {
 			 Date key =ite.getKey();
 			 if(key.after(startD)&&key.before(endD)){
 				 List<String>li= ite.getValue();
-				 System.out.println("---------Top-------------");
+				 logger.info("---------Top-------------");
 		
 			 for(String t: li){
 				     bw.write(t+'\n');
-					 System.out.println(t);
+					 logger.info(t);
 					 }
-					 System.out.println("---------###-------------");
+			        logger.info("---------###-------------");
 			 			   }
 					   }
 					bw.close();		
 		            }catch(IOException e1) {
-			   
+		            	 logger.error(e1);
 		         }
 			return rFile;
 		}

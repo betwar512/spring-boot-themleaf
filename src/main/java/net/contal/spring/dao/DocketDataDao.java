@@ -17,7 +17,7 @@ public interface DocketDataDao {
 	 * @param entity
 	 * @return
 	 */
-	public List<DocketDataDao> getAllItems(BankType entity);
+	public List<DocketLog> getAllItems(BankType bankType);
 
 	/**
 	 * <p>
@@ -27,7 +27,7 @@ public interface DocketDataDao {
 	 * @param entity
 	 * @return
 	 */
-	public List<SettlementLog> getAllSettlments(BankType entity);
+	public List<SettlementLog> getAllSettlments(BankType bankType);
 
 	/**
 	 * 
@@ -36,8 +36,19 @@ public interface DocketDataDao {
 	 * @param entity
 	 * @return
 	 */
-	public List<DocketLog> getByDate(Date dateFrom, Date dateTo, BankType entity);
+	public List<DocketLog> getDocketsByDate(Date dateFrom, Date dateTo, BankType bankType);
 
+	/**
+	 * 
+	 * @param dateFrom
+	 * @param dateTo
+	 * @param entity
+	 * @return
+	 */
+	public List<SettlementLog> getSettleByDate(Date dateFrom, Date dateTo, BankType bankType);
+
+	
+	
 	/**
 	 * <p>
 	 * Find entity by name

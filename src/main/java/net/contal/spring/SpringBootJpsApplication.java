@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @SpringBootApplication
-@ComponentScan({ "net.contal.spring" , "net.contal.spring.controller" , "net.contal.spring.config" })
+@ComponentScan({ "net.contal.spring" , "net.contal.spring.controller" , "net.contal.spring.service" , "net.contal.spring.config" })
 public class SpringBootJpsApplication {
 
 	public static void main(String[] args) {

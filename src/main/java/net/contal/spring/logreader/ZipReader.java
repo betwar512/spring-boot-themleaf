@@ -16,12 +16,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import org.apache.log4j.Logger;
+
 import com.google.gson.JsonArray;
 
 import net.contal.spring.datahandler.SettlementCustomHandler;
 import net.contal.spring.dto.CustomItemDto;
 import net.contal.spring.dto.SettlementDto;
-import net.contal.spring.utils.ConfigUtils;
 import net.contal.spring.utils.TypeConvertor;
 
 
@@ -32,7 +34,7 @@ import net.contal.spring.utils.TypeConvertor;
  */
 public class ZipReader {
 
-
+	public static final Logger logger = Logger.getLogger(ZipReader.class);
 	public List<CustomItemDto> getListItems() {
 		return listItems;
 	}
@@ -40,26 +42,28 @@ public class ZipReader {
 	public void setListItems(List<CustomItemDto> listItems) {
 		this.listItems = listItems;
 	}
+	private String logsUrl;
 	private static final String   outPutFolder= "outfolder/";
 	//"C:\\log-out\\"; "/Users/betwar/Desktop/outfolder/";
 	private static final String jsonPath = outPutFolder+"json/";//json\\";
 	private static final String logPath = outPutFolder+"log/";
-	private Map<String,List<CustomItemDto>> objectArray;  //CustomItemList 
+	//private Map<String,List<CustomItemDto>> objectArray;  //CustomItemList 
 	private List<List<String>>  stringMap; //Map Strings
-	private List<List<String>>  settlement; //Settlements for westPack 
+//	private List<List<String>>  settlement; //Settlements for westPack 
 	private List<CustomItemDto> listItems = new ArrayList<>();
 	List<SettlementDto> list ;
 	List<File> files; //All the log unzip files 
 	
-	public ZipReader(){
+	public ZipReader(String logsUrl){
+		this.logsUrl = logsUrl;
 		this.listItems = new ArrayList<>();
 		checkFolders();
 		    setFiles();
-		  stringMap = createMap();
-		objectArray = createCustomItems();
+		   createMap();
+		 createCustomItems();
 		List<List<String>> settlements= getSettlement();
 		 this.list = SettlementCustomHandler.getWestpacSettlements(settlements);
-		 System.out.println(list.size());	
+		 logger.debug(list.size());	
 	}
 	
 	private static void checkFolders(){
@@ -80,7 +84,7 @@ public class ZipReader {
 	 * @note : set all the logFile for zipReader object 
 	 */
 	public void setFiles(){
-		      final File folder = new File("/Users/Betwar/Desktop/Elixer");
+		      final File folder = new File(this.logsUrl);
 	 	   List<File>  zipFiles = listFilesForFolderZiped(folder);
                      this.files = new ArrayList<>();
 
@@ -118,54 +122,7 @@ for (File fileEntry : folder.listFiles())  {//fpos Root folders
 			}  
 		    return files;
 		}
-	
-	
-	
-	
-	/**
-	 * @note write item list to Json 
-	 * @throws IOException
-	 */
-	public void writeToJson() throws IOException{
-		int i = 0;
-		JsonArray array = new JsonArray();
-		final File folder = new File(outPutFolder+"json\\");
-		if(folder.listFiles().length>0)  //If files exist delete first 
-			for(File f : folder.listFiles()) f.delete();
-		
-		Collections.sort(this.listItems, new CustomItemDto());//Sort it first 
-		StringBuffer stBuffer= new StringBuffer();
-		stBuffer.append("f-");
-		for(CustomItemDto obj: this.listItems){
-			stBuffer.append(obj.getDate());
-			
-			  
-			array.add(obj.toJson());
-			i++;
 
-			if (i%1000==0){
-				stBuffer.append("-e-");
-				stBuffer.append(obj.getDate());
-				System.out.println("count for array "+ i );
-				 FileWriter fileWriter = new FileWriter(jsonPath+stBuffer+".json");
-				 stBuffer=new StringBuffer();
-				 stBuffer.append("f-");
-				 fileWriter.write(array.toString());
-				 fileWriter.close();
-				 array = new JsonArray();
-				
-			}
-			
-		}
-		
-		if (i%1000!=0){ //Last array need to be write in here 
-			
-			System.out.println("count for array "+ i );
-			 FileWriter fileWriter = new FileWriter(jsonPath+"jsonArray-"+i+".json");
-			 fileWriter.write(array.toString());
-			 fileWriter.close();
-		}
-	}
 	
 
 
@@ -204,7 +161,6 @@ for (File fileEntry : folder.listFiles())  {//fpos Root folders
 							  if(!s.contains("\\0d\\0a") && s.trim().length()>0){ // if not contains \0d\0a
 							if( !s.trim().isEmpty()){
 							strList.add(s.trim());
-							//	System.out.println(s.trim());
 							}			 
 						}	  
 					}
@@ -217,7 +173,7 @@ for (File fileEntry : folder.listFiles())  {//fpos Root folders
 				}
 			}//top forEach 
 			
-				System.out.println("Settlements for westpac: Done");
+				logger.debug("Settlements for westpac: Done");
 			
 				return arrayList;
 	
@@ -229,9 +185,9 @@ for (File fileEntry : folder.listFiles())  {//fpos Root folders
 * Generate ArrayList out of LOG file 
 * Map file into Array 
 */
-private  List<List<String>> createMap(){
+private void createMap(){
 
-	List<List<String>> map=new ArrayList<>();//add all to map 
+	this.stringMap = new ArrayList<>();//add all to map 
 
 		for(File file:this.files){
 
@@ -260,18 +216,16 @@ private  List<List<String>> createMap(){
 				          	strList.add(s.trim());	 
 				}	  
 			}
-				map.add(strList);
+				  this.stringMap.add(strList);
 		}
 	}
 			  br.close();
 			  fstream.close();
 			} catch (Exception e) {
 			     System.err.println("Error: " + e.getMessage());
-		} 
-	}//top forEach 
+		  } 
+	 }//top forEach 
 
-		return map;
-		
 	}
 	
 
@@ -282,16 +236,14 @@ private  List<List<String>> createMap(){
 * Version 2.0
 * Map Array String to CustomItems with cardType as key 
 */
-private  Map<String,List<CustomItemDto>> createCustomItems(){
+private void createCustomItems(){
 		
 
 		//get Map 
-	List<List<String>> retMap = this.stringMap;	
-	         Map<String,List<CustomItemDto>> map=new HashMap<>();
+	        List<List<String>> retMap = this.stringMap;	
+	        Map<String,List<CustomItemDto>> map=new HashMap<>();
 	         List<CustomItemDto> clisItems= new ArrayList<>(); //use this to write Json +
 		for (List<String> t : retMap) {
-
-			//Entry<Integer, ArrayList<String>> t = entries.next();	
 			CustomItemDto item=new CustomItemDto(); //Pass an Item 
 			
 			/*bool flags to validate the pattern 
@@ -387,12 +339,13 @@ private  Map<String,List<CustomItemDto>> createCustomItems(){
 												item.setTotalAmount(TypeConvertor.stringTofloat(cleanSplit.get(2).substring(0)));
 												statBool=true;
 											}else
-											   if(stS.contains("INV/ROC"))
+											   if(stS.contains("INV/ROC")) {
 												  item.setMerchantId(cleanSplit.get(2));
-									index++;	}	
+												  }
+									index++;
+									}	
 			
 			if(item.isValid()){//check if item is null or not 
-		//	ci.add(item);
 				clisItems.add(item);
 			if(!map.containsKey(item.getCardType())){	
 				ArrayList<CustomItemDto> c=new ArrayList<>();
@@ -403,24 +356,10 @@ private  Map<String,List<CustomItemDto>> createCustomItems(){
 			List<CustomItemDto> c=map.get(item.getCardType());
 			c.add(item);
 				
-			}//else
-		}//if valid 
-			
-			
+			 }//else
+		  }//if valid 	
 	     this.listItems= clisItems;
-			
-	
-	}
-
-		
-		
-		
-
-//	SettlementWriter.writeJson(map);
-
-
-		return map;
-		
+	     }
 	}
 	
 	
@@ -455,6 +394,56 @@ private  Map<String,List<CustomItemDto>> createCustomItems(){
 		    return files;
 		}
 	
+	
+	
+	
+	
+	/**
+	 * @note write item list to Json 
+	 * @throws IOException
+	 */
+@Deprecated
+	private void writeToJson() throws IOException{
+		int i = 0;
+		JsonArray array = new JsonArray();
+		final File folder = new File(outPutFolder+"json\\");
+		if(folder.listFiles().length>0)  //If files exist delete first 
+			for(File f : folder.listFiles()) f.delete();
+		
+		Collections.sort(this.listItems, new CustomItemDto());//Sort it first 
+		StringBuffer stBuffer= new StringBuffer();
+		stBuffer.append("f-");
+		for(CustomItemDto obj: this.listItems){
+			stBuffer.append(obj.getDate());
+			
+			  
+			array.add(obj.toJson());
+			i++;
+
+			if (i%1000==0){
+				stBuffer.append("-e-");
+				stBuffer.append(obj.getDate());
+				logger.debug("count for array "+ i );
+				 FileWriter fileWriter = new FileWriter(jsonPath+stBuffer+".json");
+				 stBuffer=new StringBuffer();
+				 stBuffer.append("f-");
+				 fileWriter.write(array.toString());
+				 fileWriter.close();
+				 array = new JsonArray();
+				
+			}
+			
+		}
+		
+		if (i%1000!=0){ //Last array need to be write in here 
+			
+			logger.debug("count for array "+ i );
+			 FileWriter fileWriter = new FileWriter(jsonPath+"jsonArray-"+i+".json");
+			 fileWriter.write(array.toString());
+			 fileWriter.close();
+		}
+	}
+	
 	public static List<File> unzip(File zipFile) throws IOException{
 		checkFolders();
 	   byte[] buffer = new byte[1024]; 
@@ -467,7 +456,7 @@ private  Map<String,List<CustomItemDto>> createCustomItems(){
 	    	   String fileName = ze.getName();
 	           File newFile = new File(logPath+fileName);
 	            if(!newFile.exists())  {  
-	           System.out.println("file unzip : "+ newFile.getAbsoluteFile());
+	           logger.debug("file unzip : "+ newFile.getAbsoluteFile());
 	            //create all non exists folders
 	           //else you will hit FileNotFoundException for compressed folder
 	          // new File(newFile.getParent()).mkdirs();     
@@ -477,7 +466,7 @@ private  Map<String,List<CustomItemDto>> createCustomItems(){
 	       		fos.write(buffer, 0, len);
 	               }	
 	            fos.close();   
-	            System.out.println("NewFile : " + fileName);
+	            logger.debug("NewFile : " + fileName);
 	            } //If not exist 
 	            ze = zis.getNextEntry(); 
 	            files.add(newFile);

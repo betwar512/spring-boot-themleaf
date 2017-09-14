@@ -55,28 +55,17 @@ public class SettlementCustomHandler {
 							else
 								if(stS.contains("DATE/TIME")){
 										String month="";
-									//	String year="";
 										String date="";
 										String day=cleanSplit.get(1).substring(0, 2);
 										StringBuilder stBuilder = new StringBuilder();
 									if(cleanSplit.get(1).length()<5){ //FEB issue 				 
 										  month = cleanSplit.get(1).substring(2, 4);
-										//month+= "B";
-									//    year ="2016";//+ spList[0]; 
-										//date= month +" "+day+" "+year+" 00:00" ; //+" " +spList[1];
 										stBuilder.append(month+"B"+ " " + day + " " + "2016" + " 00:00");
-										}else{ 
-										//TODO problem here need to be changed 
-											
+										}else{ 	
 											stBuilder.append(cleanSplit.get(1).substring(2,5) + " " + 
 													day + " " + " 20"+ cleanSplit.get(1).substring(5, 7) + 
 												" " + cleanSplit.get(2))	;
-											
-//										 month = cleanSplit.get(1).substring(2,5);
-//										 year =" 20"+ cleanSplit.get(1).substring(5, 7);
-//										date	= month +" "+day+" "+ year +" "+cleanSplit.get(2);
-										
-									 }							 
+									     }							 
                                System.out.println(stBuilder.toString());
                                if(date== "") {
                             	   System.out.println("Empty date ");
@@ -90,7 +79,7 @@ public class SettlementCustomHandler {
 					 							if(r.contains("TOTAL PUR CNT")) {
 					 								settl.purchCount=cleanSplit.get(3);
 					 								}
-							//	index++;
+
 								}
 				
 

@@ -33,6 +33,10 @@ import net.contal.spring.utils.ConfigUtils;
 		BankType bankType;
 		@Autowired
 		DocketDataDao docketDao;
+		@Value("${fpos.logs.url.nab}")
+		private  String nabLogsUrl ;
+		@Value("${fpos.logs.url.westpac}")
+		private  String westpacLogsUrl ;
 
 	private void setBankTypeForClass() {
 			if(this.bankType == null) {
@@ -42,6 +46,13 @@ import net.contal.spring.utils.ConfigUtils;
 			
 		}
 		
+	
+	private BankType getBankType() {
+		if(this.bankType == null) {
+			this.setBankTypeForClass();
+		}
+		return this.bankType;
+	}
 		/**
 		 * Only run if You want to update database 
 		 */
@@ -52,9 +63,8 @@ import net.contal.spring.utils.ConfigUtils;
 	
 	@Override
 	public void checkDatabase(String bankName) {
-		setBankTypeForClass();
 		//check count if first time than update all 
-		int count = docketDao.docketCount(this.bankType);
+		int count = docketDao.docketCount(this.getBankType());
 		if(count == 0) {
 			updatedb();
 		}
@@ -63,19 +73,16 @@ import net.contal.spring.utils.ConfigUtils;
 	
 	@Override
 	public Date getLastDocketDate() {	
-		setBankTypeForClass();
-		return this.docketDao.findLastDocketDate(this.bankType);
+		return this.docketDao.findLastDocketDate(this.getBankType());
 	}
 
 	@Override
 	public Date getLastSettlementDate() {
-	  setBankTypeForClass();
-	  return this.docketDao.findLastSettlementDate(this.bankType);
+	  return this.docketDao.findLastSettlementDate(this.getBankType());
 	}
 
 	@Override
-	public void updateDatabase(String bankType) {
-		setBankTypeForClass();
+	public void updateDatabase() {
 		updatedb();
 	}
 	
@@ -91,17 +98,17 @@ import net.contal.spring.utils.ConfigUtils;
 		List<SettlementDto>  stlLsit = new ArrayList<>();
 		List<SettlementDto> newSettel= null;
 		//Find last settlement 
-			Date settlementDate = this.docketDao.findLastSettlementDate(this.bankType);
-			Date    compareDate = this.docketDao.findLastDocketDate(this.bankType);
+			Date settlementDate = this.docketDao.findLastSettlementDate(this.getBankType());
+			Date    compareDate = this.docketDao.findLastDocketDate(this.getBankType());
 			
 		    //Set Items here by configuration file 
-		if(ConfigUtils.ENTITIES.XY.getEntityName().equals(this.bankType.getTradingName())){
-		    	NABLogHelper nh= new NABLogHelper();
+		if(ConfigUtils.BANKS.NAB.getBankName().equals(this.getBankType().getName())){
+		    	NABLogHelper nh= new NABLogHelper(this.nabLogsUrl);
 		      items = nh.getItems();
 		    	stlLsit = nh.getListSettlements();
 		    }else
-		    	   if(ConfigUtils.ENTITIES.ELIXIR.getEntityName().equals(this.bankType.getTradingName())){
-		      	  WestpacLogHelper wh = new WestpacLogHelper();
+		    	   if(ConfigUtils.BANKS.WESTPAC.getBankName().equals(this.getBankType().getName())){
+		      	  WestpacLogHelper wh = new WestpacLogHelper(this.westpacLogsUrl);
 		            items = wh.getItems();	
 		          stlLsit = wh.getSettlements();
 		    	}
@@ -140,7 +147,7 @@ import net.contal.spring.utils.ConfigUtils;
 		
 	  	for(CustomItemDto item: items){
 	   		 DocketLog dl = item.parsToModel();
-			 dl.setBankType(this.bankType);
+			 dl.setBankType(this.getBankType());
 			this.docketDao.saveOrUpdate(dl);
 		}
 	}
@@ -149,7 +156,7 @@ import net.contal.spring.utils.ConfigUtils;
 	private void saveSettlementToDb(List<SettlementDto> stlLsit) {
 		for(SettlementDto s: stlLsit){
 		    SettlementLog sl = s.parsToModel();
-		    sl.setBankType(this.bankType);
+		    sl.setBankType(this.getBankType());
 		   this.docketDao.saveOrUpdate(sl);
 	     }
 	}
@@ -192,14 +199,35 @@ import net.contal.spring.utils.ConfigUtils;
 
 	@Override
 	public int getCountForDockets() {
-		this.setBankTypeForClass();
-		return this.docketDao.docketCount(this.bankType);
+		return this.docketDao.docketCount(this.getBankType());
 	}
 
 	@Override
 	public int getCountForSettlements() {
-		this.setBankTypeForClass();
-		return  this.docketDao.settlementsCount(this.bankType);
+		return  this.docketDao.settlementsCount(this.getBankType());
+	}
+
+	@Override
+	public List<DocketLog> getDockets() {
+		return this.docketDao.getAllItems(getBankType());
+	}
+
+
+	@Override
+	public List<SettlementLog> getSettlements() {
+	return	this.docketDao.getAllSettlments(this.getBankType());
+	}
+
+
+	@Override
+	public List<DocketLog> findByDate(Date dateFrom, Date dateTo) {
+			return	this.docketDao.getDocketsByDate(dateFrom, dateTo, getBankType());
+	}
+
+
+	@Override
+	public List<SettlementLog> findSettleByDate(Date dateFrom, Date dateTo) {
+		return	this.docketDao.getSettleByDate(dateFrom, dateTo, getBankType());
 	}
 
 

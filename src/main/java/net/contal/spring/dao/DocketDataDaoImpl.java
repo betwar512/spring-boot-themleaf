@@ -29,7 +29,7 @@ public class DocketDataDaoImpl implements DocketDataDao {
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<DocketDataDao> getAllItems(BankType bankType) {
+	public List<DocketLog> getAllItems(BankType bankType) {
 		
 	return this.sessionFactory
 			.getCurrentSession()
@@ -41,14 +41,17 @@ public class DocketDataDaoImpl implements DocketDataDao {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<SettlementLog> getAllSettlments(BankType entity) {
-	return this.getSession().createCriteria(SettlementLog.class).list();
+	public List<SettlementLog> getAllSettlments(BankType bankType) {
+	return this.getSession()
+			.createCriteria(SettlementLog.class)
+			.add(Restrictions.eq("bankType", bankType))
+			.list();
 		
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<DocketLog> getByDate(Date dateFrom, Date dateTo, BankType bankType) {
+	public List<DocketLog> getDocketsByDate(Date dateFrom, Date dateTo, BankType bankType) {
 		List<DocketLog> list = this.getSession()
 									.createCriteria(DocketLog.class)
 									.add(Restrictions.between("dateTime", dateFrom, dateTo))
@@ -57,6 +60,18 @@ public class DocketDataDaoImpl implements DocketDataDao {
 		 return list != null ? list : new ArrayList<>();
 	}
 
+	@Override
+	public List<SettlementLog> getSettleByDate(Date dateFrom, Date dateTo, BankType bankType) {
+		@SuppressWarnings("unchecked")
+		List<SettlementLog> list = this.getSession()
+				.createCriteria(SettlementLog.class)
+				.add(Restrictions.between("date", dateFrom, dateTo))
+				.add(Restrictions.eq("bankType", bankType))
+				.list();
+        return list != null ? list : new ArrayList<>();
+	}
+	
+	
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -66,17 +81,19 @@ public class DocketDataDaoImpl implements DocketDataDao {
 		}
 		
 		List<BankType> entities = this.getSession()
-				.createCriteria(BankType.class).add(Restrictions.eq("name", name)).list();
+				.createCriteria(BankType.class)
+				.add(Restrictions.eq("name", name)).list();
 
 		return entities != null && !entities.isEmpty() ? entities.get(0) : null;
 	}
 
 
 	@Override
-	public Date findLastDocketDate(BankType entity) {
+	public Date findLastDocketDate(BankType bankType) {
 		@SuppressWarnings("unchecked")
 		List<DocketLog> docketsOrderedByDate = this.getSession()
 											            .createCriteria(DocketLog.class)
+											            .add(Restrictions.eq("bankType", bankType))
 														.addOrder(Order.desc("dateTime"))
 														.setMaxResults(1)
 														.list();
@@ -87,15 +104,15 @@ public class DocketDataDaoImpl implements DocketDataDao {
 
 
 	@Override
-	public int docketCount(BankType entity) {
-	return this.getAllItems(entity).size();
+	public int docketCount(BankType bankType) {
+	return this.getAllItems(bankType).size();
 	
 	}
 
 
 	@Override
-	public int settlementsCount(BankType entity) {
-		return this.getAllSettlments(entity).size();
+	public int settlementsCount(BankType bankType) {
+		return this.getAllSettlments(bankType).size();
 	}
 	
 	
@@ -107,11 +124,12 @@ public class DocketDataDaoImpl implements DocketDataDao {
 
 
 	@Override
-	public Date findLastSettlementDate(BankType entity) {
+	public Date findLastSettlementDate(BankType bankType) {
 		  @SuppressWarnings("unchecked")
 		List<SettlementLog> list =    this.getSession()
-				  .createCriteria(SettlementLog.class).
-				  addOrder(Order.desc("date"))
+				  .createCriteria(SettlementLog.class)
+				  .add(Restrictions.eq("bankType", bankType))
+				  .addOrder(Order.desc("date"))
 				  .setMaxResults(1)
 				  .list();
 		return list!= null && !list.isEmpty() ? list.get(0).getDate() : null;
@@ -123,10 +141,7 @@ public class DocketDataDaoImpl implements DocketDataDao {
 		this.getSession().saveOrUpdate(object);
 		
 	}
-	
-	
-	
-	
-	
+
+
 
 }
