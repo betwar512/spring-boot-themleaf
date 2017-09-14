@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "fpos.logs.url.nab",
+    "type": "java.lang.String",
+    "description": "Path to fpos logs folder"
+  },
+  {
+    "name": "fpos.bank.name",
+    "type": "java.lang.String",
+    "description": "Bank name to be used with this project , handler avilable for WESTPAC and NAB "
+  },
+  {
+    "name": "fpos.logs.url.westpac",
+    "type": "java.lang.String",
+    "description": "A description for 'fpos.logs.url.westpac'"
+  }
+]}
