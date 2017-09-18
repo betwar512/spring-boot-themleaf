@@ -12,11 +12,9 @@ public class SettlementDto  implements Comparator<SettlementDto>{
 
 	
 	public String merchantId;
-	//TODO change type to Date 
 	public Date date;
 	public String purchCount;
 	public Float purchAmount;
-	//TODO get list of FPOS Id 
 	public String terminalId;
 	public Double total;
 
@@ -254,7 +252,7 @@ public static String gettheLastOne(){
 	}
 		//check for null 
 		public boolean isValid() {
-		    return merchantId != null || purchCount!=null;
+		    return ( merchantId != null || purchCount!=null) && (this.total != null && this.total != 0d) ;
 		  }
 
 		

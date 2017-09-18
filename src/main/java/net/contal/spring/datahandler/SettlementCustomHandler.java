@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import net.contal.spring.dto.SettlementDto;
 import net.contal.spring.utils.TypeConvertor;
 
@@ -14,21 +16,19 @@ import net.contal.spring.utils.TypeConvertor;
  * V 2.0
  * */
 public class SettlementCustomHandler {
-
+	private static final Logger logger = Logger.getLogger(SettlementCustomHandler.class);
 	  private SettlementCustomHandler() {
 		    throw new IllegalStateException("Utility class");
 		  }
 
-	public static List<SettlementDto>  getWestpacSettlements(List<List<String>> retMap){
+ public static List<SettlementDto>  getWestpacSettlements(List<List<String>> retMap){
 
 	List<SettlementDto> list=new ArrayList<>();
 	for (List<String> t : retMap){
 
 	   	boolean settlement  =false;
 		boolean terminalBool=false;
-
-		 SettlementDto settl=new SettlementDto();
-	//	int index = 0;
+		SettlementDto settl=new SettlementDto();
 		 settl.purchAmount=0f;
 		for (String r : t) {//String inside Array String x
 			String[] stSplit=r.split(" "); //split String by space to detriment what's in our String  
@@ -46,7 +46,7 @@ public class SettlementCustomHandler {
 
 			
 				if(settlement){
-					System.out.println(r);
+					logger.info(r);
 						if(r.contains("MERCHANT ID"))
 							settl.merchantId=cleanSplit.get(2);	     
 						else
@@ -66,15 +66,16 @@ public class SettlementCustomHandler {
 													day + " " + " 20"+ cleanSplit.get(1).substring(5, 7) + 
 												" " + cleanSplit.get(2))	;
 									     }							 
-                               System.out.println(stBuilder.toString());
+                               logger.info(stBuilder.toString());
                                if(date== "") {
-                            	   System.out.println("Empty date ");
+                            	   logger.debug("Empty date ");
                             	   }
 								Date d = TypeConvertor.convertStringToDateElixer(stBuilder.toString());
 								settl.date=d;
 									}else
-										if(r.contains("NET TOTAL AUD")) {
-											settl.purchAmount=Float.valueOf(cleanSplit.get(3).substring(1));			
+										if(r.contains("TOTAL AUD")) {
+											 String strTemp = cleanSplit.get(cleanSplit.size()-1).replace("$"," ").trim();			
+										  settl.total = Double.valueOf(strTemp);			
 										}  else
 					 							if(r.contains("TOTAL PUR CNT")) {
 					 								settl.purchCount=cleanSplit.get(3);
@@ -86,11 +87,10 @@ public class SettlementCustomHandler {
 				
                  }
 		
-				   if(settl.isValid()) {
-								list.add(settl);
-								
-								}
-				          settlement = false;
+		  if(settl.isValid()) {
+					list.add(settl);
+				}
+	   //   settlement = false;
 	 }
 		return list;
    }	

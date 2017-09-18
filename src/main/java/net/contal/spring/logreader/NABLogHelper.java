@@ -227,8 +227,9 @@ public class NABLogHelper {
 	 */
   public static List<SettlementDto>  getNabSettlements(List<List<String>> retMap){
 		
-		ArrayList<SettlementDto> list=new ArrayList<>();
-		for (List<String> t : retMap){
+	ArrayList<SettlementDto> list=new ArrayList<>();
+	
+	for (List<String> t : retMap){
 
 	   	boolean settlement  = false;
 		SettlementDto settl =  null;
@@ -248,18 +249,18 @@ public class NABLogHelper {
                   }      
 		 }else{
 			 logger.debug(r);
-			 if(r.contains("Merchant ID"))
+			 if(r.contains("Merchant ID")) {
 					settl.merchantId=cleanSplit.get(2);	     
-				else
-					if(r.contains("Terminal ID ")) 
-						settl.terminalId=cleanSplit.get(2);
-					else 
+			   } else
+					if(r.contains("Terminal ID ")) {
+						settl.terminalId = cleanSplit.get(2);
+					 }else 
 						if(r.contains("SETTLEMENT") && !r.contains("PRE")){ //Date 
 							String time = cleanSplit.get(1);
 							 Date d=  CustomHelper.formatToDate(time);
 							 settl.setDate(d);
-						}else
-							if(r.contains("Purch Amount")){
+							}else
+								if(r.contains("Purch Amount")){	
 								String purchaseAmount = cleanSplit.get(2);
 								purchaseAmount=  purchaseAmount.replace("$","");
 								settl.purchAmount=Float.parseFloat(purchaseAmount);
@@ -270,15 +271,24 @@ public class NABLogHelper {
 								settl.setPurchCount(count);
 								}else 
 									if(r.contains("------------------------")) {
+										int totalIndex = t.indexOf(r) + 1 ;
+										if(totalIndex < (t.size() -1 ) ) {
+											// Net Amount      $1379.50
+											  String totalStr =   t.get(totalIndex).trim();
+											  if(totalStr.contains("$")) {
+												  String totalNet = totalStr.substring(totalStr.indexOf("$")+1);
+											      settl.total = Double.valueOf(totalNet);
+											  }
+											
+										}
 									   settlement=false;
+									   if(settl.isValid()) {
 									   list.add(settl);
 									   }
-			 
-			 
-	             } 
-			} //Second for 
-		
-		}//Firdt Foor
+								 }
+		 					} 
+						} //Second for 
+				}//Firdt Foor
 	
 	return list;
 	}

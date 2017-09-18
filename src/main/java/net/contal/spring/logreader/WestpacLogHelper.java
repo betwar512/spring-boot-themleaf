@@ -5,14 +5,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
-import net.contal.spring.datahandler.SettlementCustomHandler;
 import net.contal.spring.dto.CustomItemDto;
 import net.contal.spring.dto.SettlementDto;
+import net.contal.spring.utils.TypeConvertor;
 
 /**
  * 
@@ -24,7 +26,7 @@ public class WestpacLogHelper {
 
 		public static final Logger logger = Logger.getLogger(WestpacLogHelper.class);
 
-			private List<List<String>>  settlementsString; //Settlements for westPack 
+	//		private List<List<String>>  settlementsString; //Settlements for westPack 
 			private List<CustomItemDto> items;
 			private List<SettlementDto> settlements;
 			public WestpacLogHelper(String logsUrl){	
@@ -32,8 +34,8 @@ public class WestpacLogHelper {
 				 ZipReader zip = new ZipReader(logsUrl);
 				 List<CustomItemDto> listzip = zip.getListItems();    
 			       //Settlements in logs 
-			  this.settlementsString = getSettlement(logsUrl);
-			  this.settlements = SettlementCustomHandler.getWestpacSettlements(this.settlementsString);
+			   List<List<String>> settlementsString = getSettlement(logsUrl);
+			   getWestpacSettlements(settlementsString);
 			/*-----------------------------------------------------------------*/	
 			logger.debug("Size before" + zip.getListItems().size());
 			  this.settlements.removeAll(zip.list);
@@ -45,9 +47,10 @@ public class WestpacLogHelper {
 			
 			
 			
-			/*
-			 * Get all the settlements in log files 
-			 * */
+	 /*
+	  * Get all the settlements in log files 
+	  * 
+	* */
 	private List<List<String>> getSettlement(String logsUrl){
 		List<List<String>> arrayList=new ArrayList<>();//add all to map 
 		final File folder = new File(logsUrl);
@@ -77,11 +80,12 @@ public class WestpacLogHelper {
 								      ArrayList<String> strList=new ArrayList<>();
 								  for (String s : strArray) {
 									//  strList=new ArrayList<String>();//List for Strings	  
-									  if(!s.contains("\\0d\\0a") && s.trim().length()>0){ // if not contains \0d\0a
-									if( !s.trim().isEmpty()){
-									strList.add(s.trim());
-										logger.debug(s.trim());
-									}			 
+									  if(!s.contains("\\0d\\0a")
+											  && s.trim().length()>0
+											  && !s.trim().isEmpty()){ // if not contains \0d\0a		
+									       strList.add(s.trim());
+										 logger.debug(s.trim());
+											 
 								}	  
 							}
 								  arrayList.add(strList);
@@ -89,15 +93,87 @@ public class WestpacLogHelper {
 					}
 							  br.close();
 							} catch (Exception e) {
-							     System.err.println("Error: " + e.getMessage());
+							     logger.error( e);
 						}
 					}//top forEach 
-					
-						logger.debug("Settlements for westpac: Done");
-					
-						return arrayList;
-			
+				logger.debug("Settlements for westpac: Done");			
+			return arrayList;	
 		}
+	
+	/**
+	 * 
+	 * @param retMap
+	 * @return
+	 */
+	 private  void getWestpacSettlements(List<List<String>> retMap){
+			this.settlements = new ArrayList<>();
+			for (List<String> t : retMap){
+
+			   	boolean settlement  =false;
+				boolean terminalBool=false;
+
+				 SettlementDto settl=new SettlementDto();
+				 settl.purchAmount=0f;
+				for (String r : t) {//String inside Array String x
+					String[] stSplit=r.split(" "); //split String by space to detriment what's in our String  
+					//cleanUp array 
+					List<String> cleanSplit=new ArrayList<>(Arrays.asList(stSplit));
+				 cleanSplit.removeAll(Arrays.asList(""," ",null));
+					String stS=cleanSplit.get(0);
+				    if(r.contains("PRE-SETTLEMENT")){
+							settlement=true;
+			    }    
+					if(terminalBool){ //terminal code comes 1 iteration after Terminal keyWord 	
+						settl.terminalId=stSplit[0];
+						terminalBool=false;
+					        }
+
+					
+						if(settlement){
+							logger.info(r);
+								if(r.contains("MERCHANT ID"))
+									settl.merchantId=cleanSplit.get(2);	     
+								else
+									if(r.contains("TERMINAL ID")) 
+										settl.terminalId=cleanSplit.get(2);
+									else
+										if(stS.contains("DATE/TIME")){
+												String month="";
+												String date="";
+												String day=cleanSplit.get(1).substring(0, 2);
+												StringBuilder stBuilder = new StringBuilder();
+											if(cleanSplit.get(1).length()<5){ //FEB issue 				 
+												  month = cleanSplit.get(1).substring(2, 4);
+												stBuilder.append(month+"B"+ " " + day + " " + "2016" + " 00:00");
+												}else{ 	
+													stBuilder.append(cleanSplit.get(1).substring(2,5) + " " + 
+															day + " " + " 20"+ cleanSplit.get(1).substring(5, 7) + 
+														" " + cleanSplit.get(2))	;
+											     }							 
+		                               logger.info(stBuilder.toString());
+		                               if(date== "") {
+		                            	   logger.info("Empty date ");
+		                            	   }
+										Date d = TypeConvertor.convertStringToDateElixer(stBuilder.toString());
+										settl.date=d;
+											}else
+												if(r.contains("TOTAL AUD")) {
+													 String strTemp = cleanSplit.get(cleanSplit.size()-1).replace("$"," ").trim();			
+												  settl.total = Double.valueOf(strTemp);			
+												}  else
+							 							if(r.contains("TOTAL PUR CNT")) {
+							 								settl.purchCount=cleanSplit.get(3);
+							 							}
+										            }
+		                                        }
+
+						  if(settl.isValid()) {
+							   settlements.add(settl);		
+							   settlement = false;
+								}
+					
+			        }
+		   }	
 
 				
 			/*

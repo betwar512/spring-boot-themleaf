@@ -35,6 +35,7 @@ public class DocketDataDaoImpl implements DocketDataDao {
 			.getCurrentSession()
 			.createCriteria(DocketLog.class)
 			.add(Restrictions.eq("bankType", bankType))
+			.addOrder(Order.desc("dateTime"))
 			.list();
 	}
 	
@@ -45,6 +46,7 @@ public class DocketDataDaoImpl implements DocketDataDao {
 	return this.getSession()
 			.createCriteria(SettlementLog.class)
 			.add(Restrictions.eq("bankType", bankType))
+			.addOrder(Order.desc("date"))
 			.list();
 		
 	}

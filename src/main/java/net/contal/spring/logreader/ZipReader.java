@@ -37,8 +37,7 @@ public class ZipReader {
 		this.listItems = listItems;
 	}
 	private String logsUrl;
-	private static final String   outPutFolder= "outfolder/";
-	//"C:\\log-out\\"; "/Users/betwar/Desktop/outfolder/";
+	private static final String   outPutFolder = "outfolder/";
 	private static final String logPath = outPutFolder+"log/";
 	private List<List<String>>  stringMap; //Map Strings
 	private List<CustomItemDto> listItems = new ArrayList<>();
@@ -145,26 +144,22 @@ for (File fileEntry : folder.listFiles())  {//fpos Root folders
 							  List<String> strList=new ArrayList<>();
 						  for (String s : strArray) {
 							//  strList=new ArrayList<String>();//List for Strings	  
-							  if(!s.contains("\\0d\\0a") && s.trim().length()>0){ // if not contains \0d\0a
-							if( !s.trim().isEmpty()){
-							strList.add(s.trim());
-							}			 
-						}	  
-					}
+							  if(!s.contains("\\0d\\0a") && s.trim().length()>0 &&  !s.trim().isEmpty()){ // if not contains \0d\0a
+							     strList.add(s.trim());					 
+						        }	  
+						  	}
 						  arrayList.add(strList);
-				}
-			}
+						 }
+					   }
 					  br.close();
 					} catch (Exception e) {
-					     System.err.println("Error: " + e.getMessage());
+						logger.error(e);
 				}
 			}//top forEach 
 			
-				logger.debug("Settlements for westpac: Done");
-			
-				return arrayList;
-	
-}
+			logger.info("Settlements for westpac: Done");
+	 	return arrayList;
+   }
 	
 
 
@@ -209,7 +204,7 @@ private void createMap(){
 			  br.close();
 			  fstream.close();
 			} catch (Exception e) {
-			     System.err.println("Error: " + e.getMessage());
+			    logger.error(e);
 		  } 
 	 }//top forEach 
 
@@ -304,23 +299,20 @@ private void createCustomItems(){
 									date	= month +" "+day+" "+year +" " +spList[1];
 									
 									}else{ 
-									//TODO problem here need to be changed 
+
 									 month=cleanSplit.get(1).substring(2,5);
 									 year =" 20"+ cleanSplit.get(1).substring(5, 7);
 									date	= month +" "+day+" "+year +" " +cleanSplit.get(2);
 									 }							 
-								
 
-								
-									
 								 Date d = TypeConvertor.convertStringToDateElixer(date);
 								 item.setDateTime(d);
 								 bool=true;
 										}
 										else
-											if(stS.contains("AMOUNT")) 
+											if(stS.contains("AMOUNT")) {
 											item.setPurchaseAmount(cleanSplit.get(1));
-										else 
+											}else 
 											if(stS.contains("TOTAL")){
 												item.setTotalAmount(TypeConvertor.stringTofloat(cleanSplit.get(2).substring(0)));
 												statBool=true;
@@ -396,7 +388,7 @@ private void createCustomItems(){
 	    	while(ze!=null){		
 	    	   String fileName = ze.getName();
 	           File newFile = new File(logPath+fileName);
-	            if(!newFile.exists())  {  
+	           if(!newFile.exists())  {  
 	           logger.debug("file unzip : "+ newFile.getAbsoluteFile());
 	            //create all non exists folders   
 	            FileOutputStream fos = new FileOutputStream(newFile);             
@@ -414,9 +406,8 @@ private void createCustomItems(){
 	    	 zis.closeEntry();
 	     	zis.close();
 	     	
-		} catch (IOException e) {
-			
-			e.printStackTrace();
+		   } catch (IOException e) {		
+			logger.error(e);
 		}
 	     	
 	     	return files;

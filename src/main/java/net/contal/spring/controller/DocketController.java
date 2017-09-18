@@ -3,6 +3,7 @@ package net.contal.spring.controller;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +14,9 @@ import net.contal.spring.service.HibernateDataService;
 
 @RestController
 public class DocketController {
+	
+	private static final Logger logger = Logger.getLogger(DocketController.class); 
+	
 	@Autowired
 	public HibernateDataService hibernateService;
 	
@@ -30,14 +34,14 @@ public class DocketController {
 	
 	@RequestMapping(value="/json/dockebydate")
 	public List<DocketLog> loadByDate(Date dateFrom,Date dateTo) {
-		System.out.println(dateFrom + "   " + dateTo);
+		logger.info(dateFrom + "   " + dateTo);
 		   return  this.hibernateService.findByDate(dateFrom, dateTo);
 	}
 	
 	
 	@RequestMapping(value="/json/settlebydate")
 	public List<SettlementLog> loadSettleByDate(Date dateFrom,Date dateTo) {
-		System.out.println(dateFrom + "   " + dateTo);
+		logger.info(dateFrom + "   " + dateTo);
 		   return  this.hibernateService.findSettleByDate(dateFrom, dateTo);
 	}
 	
