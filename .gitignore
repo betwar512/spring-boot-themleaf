@@ -23,8 +23,5 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
-<<<<<<< HEAD
 outfolder/
-=======
-outfolder/
->>>>>>> 04ff1a659806c77a4f29c3cbcbeb7104583db3f7
+
