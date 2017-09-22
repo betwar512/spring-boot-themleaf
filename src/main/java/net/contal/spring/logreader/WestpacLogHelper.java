@@ -120,9 +120,8 @@ public class WestpacLogHelper {
 					List<String> cleanSplit=new ArrayList<>(Arrays.asList(stSplit));
 				 cleanSplit.removeAll(Arrays.asList(""," ",null));
 					String stS=cleanSplit.get(0);
-				    if(r.contains("PRE-SETTLEMENT")){
-							settlement=true;
-			    }    
+				    if(r.contains("PRE-SETTLEMENT")){ settlement = true; }    
+				    
 					if(terminalBool){ //terminal code comes 1 iteration after Terminal keyWord 	
 						settl.terminalId=stSplit[0];
 						terminalBool=false;
@@ -168,8 +167,8 @@ public class WestpacLogHelper {
 		                                        }
 
 						  if(settl.isValid()) {
+							// settl.logString = t.toString();
 							   settlements.add(settl);		
-							   settlement = false;
 								}
 					
 			        }

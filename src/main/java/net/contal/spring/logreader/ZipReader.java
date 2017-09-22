@@ -324,6 +324,7 @@ private void createCustomItems(){
 									}	
 			
 			if(item.isValid()){//check if item is null or not 
+				
 				clisItems.add(item);
 			if(!map.containsKey(item.getCardType())){	
 				ArrayList<CustomItemDto> c=new ArrayList<>();
@@ -391,12 +392,14 @@ private void createCustomItems(){
 	           if(!newFile.exists())  {  
 	           logger.debug("file unzip : "+ newFile.getAbsoluteFile());
 	            //create all non exists folders   
-	            FileOutputStream fos = new FileOutputStream(newFile);             
+	          try(FileOutputStream fos = new FileOutputStream(newFile)){             
 	            int len;
 	            while ((len = zis.read(buffer)) > 0) {
 	       		fos.write(buffer, 0, len);
-	               }	
-	            fos.close();   
+	                 }	
+	        	 fos.close(); 
+	             }
+	             
 	            logger.debug("NewFile : " + fileName);
 	            } //If not exist 
 	            ze = zis.getNextEntry(); 

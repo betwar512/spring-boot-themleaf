@@ -15,7 +15,6 @@ import net.contal.spring.dto.DatesDto;
 import net.contal.spring.model.BankType;
 
 
-
 @Controller
 public class MainController {
 

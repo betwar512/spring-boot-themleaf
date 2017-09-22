@@ -18,6 +18,7 @@ public class SettlementDto  implements Comparator<SettlementDto>{
 	public String terminalId;
 	public Double total;
 
+
 	
 	
 	public SettlementLog parsToModel() {

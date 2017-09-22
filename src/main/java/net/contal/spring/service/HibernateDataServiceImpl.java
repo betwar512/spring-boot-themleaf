@@ -1,10 +1,10 @@
 package net.contal.spring.service;
 
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,12 +21,11 @@ import net.contal.spring.utils.ConfigUtils;
 /**
  * <p>Class responsible for updating database from logs 
  * @author A.H.Safaie
- *
  */
 @Service
  public class HibernateDataServiceImpl implements HibernateDataService ,  Runnable {
 	
-	
+	private static final Logger logger = Logger.getLogger(HibernateDataServiceImpl.class);
 	@Value("${fpos.bank.name}")
 	private String bankKey ;
 	
@@ -125,22 +124,19 @@ import net.contal.spring.utils.ConfigUtils;
 			//If anything exist update the db 
 	if(newItems!=null){		
 		saveDocketToDb(newItems);
-		}else 
-			if(compareDate == null){  //if ResultSet returns empty it means first time so create db for system
-				saveDocketToDb(items);
 		}else {
-			System.out.println("nothing to update Items ");
+			logger.info("nothing to update Items ");
 		 }
 		//Settlement
 		if(newSettel!=null){
 			saveSettlementToDb(newSettel);
 		}else
-			if(settlementDate == null && stlLsit!=null){		
+			if(stlLsit!=null){		
 					saveSettlementToDb(stlLsit);
 			}else {
-				System.out.println("nothing to update Settlment ");
+				logger.info("nothing to update Settlment ");
 			}
-		System.out.println("END ");
+		logger.info("END ");
 	}	
 
 	private void saveDocketToDb(List<CustomItemDto> items) {

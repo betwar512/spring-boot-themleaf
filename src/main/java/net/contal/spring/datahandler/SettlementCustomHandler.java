@@ -21,6 +21,7 @@ public class SettlementCustomHandler {
 		    throw new IllegalStateException("Utility class");
 		  }
 
+	  
  public static List<SettlementDto>  getWestpacSettlements(List<List<String>> retMap){
 
 	List<SettlementDto> list=new ArrayList<>();
