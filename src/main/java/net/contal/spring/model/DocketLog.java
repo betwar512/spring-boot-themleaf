@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -33,6 +34,11 @@ public class DocketLog {
 	private Float totalAmount;
 	@Column(name="cardType")
 	private String cardType;
+	
+	@Column(name="original")
+	@Lob
+	private String originalDocket;
+	
 	@Column(name="date")
 	private String date;
 	
@@ -130,6 +136,14 @@ public class DocketLog {
 
 	public void setBankType(BankType bankType) {
 		this.bankType = bankType;
+	}
+
+	public String getOriginalDocket() {
+		return originalDocket;
+	}
+
+	public void setOriginalDocket(String originalDocket) {
+		this.originalDocket = originalDocket;
 	}
 
 	

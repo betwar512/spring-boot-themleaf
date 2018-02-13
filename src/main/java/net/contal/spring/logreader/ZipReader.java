@@ -226,8 +226,11 @@ private void createCustomItems(){
 	        Map<String,List<CustomItemDto>> map=new HashMap<>();
 	         List<CustomItemDto> clisItems= new ArrayList<>(); //use this to write Json +
 		for (List<String> t : retMap) {
-			CustomItemDto item=new CustomItemDto(); //Pass an Item 
-			
+			CustomItemDto item = new CustomItemDto(); //Pass an Item 
+			String string = "";
+			item.setOriginalDocker(t.toString());
+		
+			item.setOriginalDocker(t.toString());
 			/*bool flags to validate the pattern 
 			 * NOT 100% but works in most of a time  
 			 *

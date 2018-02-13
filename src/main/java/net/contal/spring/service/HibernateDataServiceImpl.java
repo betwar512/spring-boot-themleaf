@@ -115,6 +115,9 @@ import net.contal.spring.utils.ConfigUtils;
 		    	//Check if database not empty 
 		    if(compareDate!=null){
 			    newItems = getItemAfter(items,compareDate);
+		       } else {
+		    	   newItems = new ArrayList<>();
+		    	   newItems.addAll(items);
 		       }
 		    
 	if(settlementDate!=null){	

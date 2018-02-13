@@ -29,6 +29,7 @@ public class CustomItemDto implements Comparator<CustomItemDto>{
 	private Float totalAmount;
 	private String cardType;
 	private String date;
+	private String originalDocker;
 	
 	
 	
@@ -45,6 +46,7 @@ public class CustomItemDto implements Comparator<CustomItemDto>{
 		dl.setStatus(this.status);
 		dl.setTerminalId(this.terminalId);
 		dl.setTotalAmount(this.totalAmount);
+		dl.setOriginalDocket(this.originalDocker);
 		return dl;
 		
 	}
@@ -114,6 +116,15 @@ public class CustomItemDto implements Comparator<CustomItemDto>{
 	}
 	public void setTotalAmount(Float totalAmount) {
 		this.totalAmount = totalAmount;
+	}
+
+
+	public String getOriginalDocker() {
+		return originalDocker;
+	}
+
+	public void setOriginalDocker(String originalDocker) {
+		this.originalDocker = originalDocker;
 	}
 
 	//check for null 
